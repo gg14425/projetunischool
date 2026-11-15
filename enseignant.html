@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Enseignant | My EPI App</title>
+    <link rel="stylesheet" href="assets/css/enseignant.css">
+    <link rel="stylesheet" href="assets/css/toast.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* ══════════════════════════════════════════════
+   LOGIN ANIMATED BACKGROUND — Espace Enseignant
+══════════════════════════════════════════════ */
+.bg-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    overflow: hidden;
+    background-image:
+        linear-gradient(
+            135deg,
+            rgba(15, 32, 68, 0.88),
+            rgba(28, 59, 112, 0.45),
+            rgba(0, 0, 0, 0.40)
+        ),
+        url("assets/img/background.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: zoomBg 12s ease-in-out infinite alternate;
+}
+
+/* Blue reflections */
+.bg-slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(28, 59, 112, 0.60),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(15, 32, 68, 0.45),
+            transparent 45%
+        ),
+        linear-gradient(
+            to bottom,
+            rgba(15, 32, 68, 0.20),
+            transparent 55%
+        );
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+/* Moving cinematic light */
+.bg-slide::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 70%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.07),
+        transparent
+    );
+    transform: skewX(-20deg);
+    animation: shineMove 7s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes zoomBg {
+    from { transform: scale(1); }
+    to   { transform: scale(1.08); }
+}
+@keyframes shineMove {
+    to { left: 150%; }
+}
+
+/* Overlay verre dépoli */
+#login-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.40);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+}
+
+/* Particules flottantes */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    animation: float-particle linear infinite;
+    z-index: 1;
+}
+@keyframes float-particle {
+    0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+/* Conteneur login */
+.login-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(255,255,255,0.97) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 45px 40px !important;
+    border-radius: 20px !important;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1) !important;
+    width: 90%;
+    max-width: 420px;
+    animation: loginAppear 0.7s cubic-bezier(0.34,1.56,0.64,1) both !important;
+}
+@keyframes loginAppear {
+    from { opacity: 0; transform: translateY(40px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Badge enseignant avec couleurs bleues ENS */
+.sco-badge {
+    width: 72px !important;
+    height: 72px !important;
+    background: linear-gradient(135deg, #0f2044, #1C3B70) !important;
+    border-radius: 20px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px !important;
+    color: white;
+    font-size: 1.8rem !important;
+    box-shadow: 0 8px 24px rgba(15,32,68,0.45) !important;
+    animation: badge-pulse-ens 3s ease-in-out infinite;
+}
+@keyframes badge-pulse-ens {
+    0%, 100% { box-shadow: 0 8px 24px rgba(28,59,112,0.45); }
+    50%       { box-shadow: 0 12px 36px rgba(28,59,112,0.70), 0 0 0 6px rgba(28,59,112,0.12); }
+}
+
+/* Bouton submit avec shimmer */
+.btn-submit-ens {
+    position: relative;
+    overflow: hidden;
+    height: 50px;
+    font-size: 1rem;
+    border-radius: 10px;
+    margin-top: 8px;
+}
+.btn-submit-ens::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%;
+    height: 200%;
+    background: rgba(255,255,255,0.15);
+    transform: skewX(-20deg);
+    animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+    0%   { left: -60%; }
+    100% { left: 120%; }
+}
+
+/* Slide-dots */
+.slide-dots {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+}
+.slide-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.slide-dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* Password toggle button */
+.pwd-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #8892a4;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px;
+}
+    </style>
+</head>
+<body>
+    <div id="login-screen" class="screen active">
+        <!-- Slider de fond animé -->
+        <div class="bg-slider" id="bg-slider">
+            <div class="bg-slide active"></div>
+            <div class="bg-slide"></div>
+            <div class="bg-slide"></div>
+            <div class="bg-slide"></div>
+        </div>
+
+        <!-- Particules dynamiques -->
+        <div id="particles-container"></div>
+
+        <div class="login-container">
+            <div class="login-header">
+                <div class="sco-badge"><i class="fas fa-chalkboard-teacher"></i></div>
+                <h2><span class="text-primary">My EPI</span> App</h2>
+                <p>Espace Enseignant</p>
+            </div>
+            <form id="login-form">
+                <div class="input-group">
+                    <label for="sco-id"><i class="fas fa-id-badge"></i> Matricule Enseignant</label>
+                    <input type="text" id="sco-id" placeholder="Ex: ENS-0045" required>
+                </div>
+                <div class="input-group">
+                    <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+                    <div style="position:relative;">
+                        <input type="password" id="password" placeholder="Votre mot de passe" required style="padding-right:44px;">
+                        <button type="button" id="toggle-pwd" class="pwd-toggle">
+                            <i class="fas fa-eye" id="eye-icon"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-submit-ens">
+                    <i class="fas fa-sign-in-alt"></i> Accéder à l'Espace Enseignant
+                </button>
+                <div class="login-footer">
+                    <a href="#"><i class="fas fa-envelope"></i> Problème de connexion ? Contacter l'administration.</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Points de navigation du slider -->
+        <div class="slide-dots" id="slide-dots">
+            <div class="slide-dot active" onclick="goToSlide(0)"></div>
+            <div class="slide-dot" onclick="goToSlide(1)"></div>
+            <div class="slide-dot" onclick="goToSlide(2)"></div>
+            <div class="slide-dot" onclick="goToSlide(3)"></div>
+        </div>
+    </div>
+    <div id="app-screen" class="screen">
+ 
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/img/logo-epi.png" alt="EPI Logo" class="logo-img" onerror="this.style.display='none'">
+                <div class="sco-label">ENSEIGNANT</div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-target="view-dashboard"><i class="fas fa-tachometer-alt"></i> Tableau de bord</li>
+                <li class="nav-item" data-target="view-profile"><i class="fas fa-id-card-alt"></i> Mon Profil</li>
+                <li class="nav-item" data-target="view-emploi"><i class="fas fa-calendar-week"></i> Emploi du temps</li>
+                <li class="nav-item" data-target="view-attendance"><i class="fas fa-user-check"></i> Faire l'appel</li>
+                <li class="nav-item" data-target="view-courses"><i class="fas fa-chalkboard-teacher"></i> Espace Cours</li>
+                <li class="nav-item" data-target="view-grading"><i class="fas fa-pen-nib"></i> Saisie des Notes</li>
+                <li class="nav-item" data-target="view-messages"><i class="fas fa-paper-plane"></i> Messagerie Classes</li>
+                <li class="nav-item" data-target="view-admin"><i class="fas fa-briefcase"></i> Espace RH</li>
+            </ul>
+            <div class="logout-container">
+                <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+            </div>
+        </aside>
+ 
+        <main class="main-content">
+            <header class="topbar">
+                <div class="page-title"><h3 id="current-page-title">Tableau de bord</h3></div>
+                <div class="user-info">
+                    <span>Bienvenue, <strong id="user-name-display">Pr. Yassine MILED</strong></span>
+                    <img src="https://ui-avatars.com/api/?name=Yassine+M&background=1C3B70&color=fff" alt="Avatar" class="avatar">
+                </div>
+            </header>
+ 
+            <div class="content-wrapper">
+ 
+                
+                <section id="view-dashboard" class="view active">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background:rgba(28,59,112,0.1);color:#1C3B70;"><i class="fas fa-users"></i></div>
+                            <div class="kpi-info"><span class="kpi-value">74</span><span class="kpi-label">Étudiants encadrés</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;"><i class="fas fa-book-open"></i></div>
+                            <div class="kpi-info"><span class="kpi-value">3</span><span class="kpi-label">Modules ce semestre</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background:rgba(243,156,18,0.1);color:#f39c12;"><i class="fas fa-pen-nib"></i></div>
+                            <div class="kpi-info"><span class="kpi-value">38</span><span class="kpi-label">Notes à saisir</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background:rgba(201,36,46,0.1);color:#C9242E;"><i class="fas fa-exclamation-circle"></i></div>
+                            <div class="kpi-info"><span class="kpi-value">1</span><span class="kpi-label">Appel en attente</span></div>
+                        </div>
+                    </div>
+ 
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3><i class="fas fa-envelope-open-text text-primary"></i> Notes de l'Administration</h3>
+                            <div class="list-group">
+                                <div class="list-item">
+                                    <span class="badge badge-warning">Important</span>
+                                    <h4>Clôture du Semestre 1</h4>
+                                    <p>Veuillez finaliser la saisie des notes et le pointage des absences avant le 15 Mars.</p>
+                                    <small><i class="fas fa-building"></i> Direction des Études · Hier</small>
+                                </div>
+                                <div class="list-item">
+                                    <span class="badge badge-info">Info</span>
+                                    <h4>Réunion du département</h4>
+                                    <p>Réunion pédagogique prévue ce jeudi à 14h dans la salle des professeurs.</p>
+                                    <small><i class="fas fa-user-tie"></i> Chef de Département · Il y a 2 jours</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3><i class="fas fa-tasks text-primary"></i> Mes Tâches Rapides</h3>
+                            <div class="list-group">
+                                <div class="list-item" style="cursor:pointer;" onclick="document.querySelector('[data-target=\'view-attendance\']').click()">
+                                    <h4><i class="fas fa-exclamation-circle" style="color:var(--warning);"></i> Appel non fait</h4>
+                                    <p>Classe : TIC 2D.FR — Séance du Lundi 08:30</p>
+                                </div>
+                                <div class="list-item" style="cursor:pointer;" onclick="document.querySelector('[data-target=\'view-grading\']').click()">
+                                    <h4><i class="fas fa-clock" style="color:var(--warning);"></i> Notes en attente</h4>
+                                    <p>DS Programmation Web 2 — Classe : GL 3A</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+ 
+                
+                <section id="view-profile" class="view">
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3><i class="fas fa-user-circle text-primary"></i> Informations Professionnelles</h3>
+                            <form class="form-grid">
+                                <div class="input-group">
+                                    <label>Nom complet</label>
+                                    <input type="text" value="Pr. Yassine MILED" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>Département</label>
+                                    <input type="text" value="Informatique & Technologies" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>Email Professionnel</label>
+                                    <input type="email" value="y.miled@epi.ens.tn" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>Grade</label>
+                                    <input type="text" value="Enseignant Universitaire Principal" disabled>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="card d-flex-center">
+                            <div class="digital-student-card" style="background:linear-gradient(135deg,#1C3B70,#0f2044);box-shadow:0 15px 40px rgba(28,59,112,0.35);">
+                                <div class="card-header">
+                                    <h4>EPI <span style="font-weight:400;">Staff</span></h4>
+                                    <span>2025/2026</span>
+                                </div>
+                                <div class="card-body">
+                                    <img src="https://ui-avatars.com/api/?name=Yassine+M&background=fff&color=1C3B70" alt="Photo" class="card-photo">
+                                    <div class="card-details">
+                                        <h5>Pr. Yassine MILED</h5>
+                                        <p>Matricule: <strong>ENS-9087</strong></p>
+                                        <p>Dép. Informatique</p>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <i class="fas fa-qrcode"></i> Scanner la carte
+                                </div>
+                            </div>
+                            <div class="nfc-notice" style="margin-top:16px;">
+                                <i class="fas fa-mobile-alt" style="color:var(--ens-mid);"></i>
+                                <em>Badge NFC : Utilisez cette carte pour l'accès au parking et aux salles de classe.</em>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+ 
+                
+                <section id="view-emploi" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom:20px;">
+                            <h3><i class="fas fa-calendar-week text-primary"></i> Mon emploi du temps</h3>
+                            <button class="btn btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Imprimer</button>
+                        </div>
+                        <div id="emploi-ens-container"></div>
+                    </div>
+                </section>
+ 
+            
+                <section id="view-attendance" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom:20px;">
+                            <h3><i class="fas fa-list-ul text-primary"></i> Saisie des absences</h3>
+                            <div class="filters">
+                                <select class="custom-select" id="class-select-appel">
+                                    <option value="">— Choisir la séance —</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="attendance-list" style="display:none;">
+                            <table class="data-table" id="appel-table">
+                                <thead>
+                                    <tr><th>Étudiant</th><th>CIN</th><th>Présence</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <div style="margin-top:20px;text-align:right;">
+                                <button class="btn btn-primary" id="btn-save-appel"><i class="fas fa-save"></i> Valider l'appel</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+ 
+            
+                <section id="view-courses" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom:20px;">
+                            <h3><i class="fas fa-chalkboard-teacher text-primary"></i> Gestion des supports de cours</h3>
+                        </div>
+                        <form id="upload-form" class="grid-2" style="margin-bottom:24px;" enctype="multipart/form-data">
+                            <div class="input-group"><label>Matière</label>
+                                <select class="custom-select" id="up-matiere" style="min-width:0;width:100%;" required><option value="">— Matière —</option></select></div>
+                            <div class="input-group"><label>Titre</label>
+                                <input type="text" id="up-titre" maxlength="200" required placeholder="Ex : Chapitre 1 — Introduction"></div>
+                            <div class="input-group"><label>Type</label>
+                                <select class="custom-select" id="up-type" style="min-width:0;width:100%;">
+                                    <option>PDF</option><option>PPT</option><option>TD</option><option>TP</option><option>Autre</option></select></div>
+                            <div class="input-group"><label>Fichier (pdf, ppt, pptx, doc, docx, zip, txt — 10 Mo max)</label>
+                                <input type="file" id="up-fichier" required accept=".pdf,.ppt,.pptx,.doc,.docx,.zip,.txt"></div>
+                            <div><button type="submit" class="btn btn-primary"><i class="fas fa-cloud-upload-alt"></i> Ajouter le document</button></div>
+                        </form>
+                        <div id="cours-ens-container" class="list-group"></div>
+                    </div>
+                </section>
+ 
+                
+                <section id="view-grading" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom:20px;">
+                            <h3><i class="fas fa-pen-nib text-primary"></i> Saisie des notes</h3>
+                            <select class="custom-select" id="class-select-notes">
+                                <option value="">— Choisir la classe / matière —</option>
+                            </select>
+                        </div>
+                        <div id="grading-list" style="display:none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <div><strong>Rappel :</strong> Moyenne = (CC × 0.2) + (DS × 0.3) + (Examen × 0.5). Notes sur 20.</div>
+                            </div>
+                            <table class="data-table" id="notes-table">
+                                <thead>
+                                    <tr><th>Étudiant</th><th>CC (20 %)</th><th>DS (30 %)</th><th>Examen (50 %)</th><th>Moyenne</th><th>Statut</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                            <div style="margin-top:20px;text-align:right;">
+                                <button class="btn btn-primary" id="btn-save-notes"><i class="fas fa-save"></i> Enregistrer les notes</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+ 
+                
+                <section id="view-messages" class="view">
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3><i class="fas fa-paper-plane text-primary"></i> Envoyer un message</h3>
+                            <form id="message-form">
+                                <div class="input-group">
+                                    <label>Destinataire(s)</label>
+                                    <select class="custom-select" id="msg-dest" style="min-width:0;width:100%;">
+                                        <option value="etudiants">Étudiants</option>
+                                        <option value="scolarite">Scolarité</option>
+                                        <option value="admin">Administration</option>
+                                    </select>
+                                </div>
+                                <div class="input-group">
+                                    <label>Classe (facultatif — pour cibler une seule classe)</label>
+                                    <select class="custom-select" id="msg-classe" style="min-width:0;width:100%;"><option value="">Toutes mes classes</option></select>
+                                </div>
+                                <div class="input-group"><label>Objet</label>
+                                    <input type="text" id="msg-objet" maxlength="200" required placeholder="Ex : Rattrapage de la séance de mardi"></div>
+                                <div class="input-group"><label>Message</label>
+                                    <textarea id="msg-contenu" rows="5" maxlength="5000" required placeholder="Rédigez votre message ici..."></textarea></div>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i> Envoyer</button>
+                            </form>
+                        </div>
+                        <div class="card">
+                            <h3><i class="fas fa-inbox text-primary"></i> Messages envoyés</h3>
+                            <div class="list-group" id="messages-container"></div>
+                        </div>
+                    </div>
+                </section>
+ 
+                <section id="view-admin" class="view">
+                    <div class="card">
+                        <h3><i class="fas fa-briefcase text-primary"></i> Espace Ressources Humaines</h3>
+                        <div class="grid-3">
+                            <div class="admin-service-card">
+                                <i class="fas fa-plane-departure"></i>
+                                <h4>Demande de Congé</h4>
+                                <p>Soumettre une demande d'absence ou congé annuel.</p>
+                                <button class="btn btn-outline w-100">Remplir le formulaire</button>
+                            </div>
+                            <div class="admin-service-card">
+                                <i class="fas fa-file-contract"></i>
+                                <h4>Documents Administratifs</h4>
+                                <p>Attestation de travail, fiche de paie.</p>
+                                <button class="btn btn-outline w-100">Demander</button>
+                            </div>
+                            <div class="admin-service-card">
+                                <i class="fas fa-calendar-plus"></i>
+                                <h4>Demande de rattrapage</h4>
+                                <p>Signaler un cours annulé et planifier un rattrapage.</p>
+                                <button class="btn btn-outline w-100">Déclarer</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+ 
+            </div>
+        </main>
+    </div>
+ 
+    <script src="assets/js/common.js"></script>
+<script src="assets/js/enseignant.js"></script>
+<script>
+/* ANIMATED LOGIN BACKGROUND — Enseignant */
+(function() {
+    const slides = document.querySelectorAll(".bg-slide");
+    const dots   = document.querySelectorAll(".slide-dot");
+    let current  = 0;
+    let timer;
+    window.goToSlide = function(idx) {
+        slides[current].classList.remove("active");
+        dots[current].classList.remove("active");
+        current = idx;
+        slides[current].classList.add("active");
+        dots[current].classList.add("active");
+        clearInterval(timer);
+        startTimer();
+    };
+    function nextSlide() { goToSlide((current + 1) % slides.length); }
+    function startTimer() { timer = setInterval(nextSlide, 5000); }
+    startTimer();
+    const container = document.getElementById("particles-container");
+    if (container) {
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement("div");
+            p.className = "particle";
+            const size = Math.random() * 40 + 10;
+            p.style.cssText = "width:" + size + "px;height:" + size + "px;left:" + (Math.random()*100) + "%;animation-duration:" + (Math.random()*15+10) + "s;animation-delay:" + (Math.random()*10) + "s;";
+            container.appendChild(p);
+        }
+    }
+    document.getElementById("toggle-pwd")?.addEventListener("click", function() {
+        const inp  = document.getElementById("password");
+        const icon = document.getElementById("eye-icon");
+        if (inp.type === "password") { inp.type = "text"; icon.className = "fas fa-eye-slash"; }
+        else { inp.type = "password"; icon.className = "fas fa-eye"; }
+    });
+})();
+</script>
+</body>
+</html>

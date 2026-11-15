@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Étudiant | My EPI App</title>
+    <link rel="stylesheet" href="assets/css/etudiant.css">
+    <link rel="stylesheet" href="assets/css/toast.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* ══════════════════════════════════════════════
+   LOGIN ANIMATED BACKGROUND — Student Portal
+══════════════════════════════════════════════ */
+.bg-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    overflow: hidden;
+
+    background-image:
+        linear-gradient(
+            135deg,
+            rgba(150, 0, 0, 0.72),
+            rgba(255, 0, 0, 0.28),
+            rgba(0, 0, 0, 0.40)
+        ),
+        url("assets/img/background.jpeg");
+
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    animation: zoomBg 12s ease-in-out infinite alternate;
+}
+
+/* Red reflections */
+.bg-slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(255, 0, 0, 0.65),
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at bottom left,
+            rgba(255, 0, 0, 0.30),
+            transparent 45%
+        ),
+
+        linear-gradient(
+            to bottom,
+            rgba(255, 0, 0, 0.12),
+            transparent 55%
+        );
+
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+/* Moving cinematic light */
+.bg-slide::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 70%;
+    height: 100%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.08),
+        transparent
+    );
+
+    transform: skewX(-20deg);
+    animation: shineMove 7s linear infinite;
+
+    pointer-events: none;
+}
+
+/* Slow cinematic zoom */
+@keyframes zoomBg {
+    from {
+        transform: scale(1);
+    }
+    to {
+        transform: scale(1.08);
+    }
+}
+
+/* Shine animation */
+@keyframes shineMove {
+    to {
+        left: 150%;
+    }
+}
+ 
+/* Overlay verre dépoli */
+#login-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+}
+ 
+/* Particules flottantes */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    animation: float-particle linear infinite;
+    z-index: 1;
+}
+@keyframes float-particle {
+    0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+ 
+/* Conteneur login */
+.login-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 45px 40px;
+    border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+    width: 90%;
+    max-width: 420px;
+    animation: loginAppear 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes loginAppear {
+    from { opacity: 0; transform: translateY(40px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+ 
+
+ 
+/* Badge étudiant amélioré */
+.student-badge {
+    width: 72px; height: 72px;
+    background: linear-gradient(135deg, #C9242E, #8b151e);
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+    color: white; font-size: 1.8rem;
+    box-shadow: 0 8px 24px rgba(201,36,46,0.4);
+    animation: badge-pulse 3s ease-in-out infinite;
+}
+@keyframes badge-pulse {
+    0%, 100% { box-shadow: 0 8px 24px rgba(201,36,46,0.4); }
+    50%       { box-shadow: 0 12px 36px rgba(201,36,46,0.6), 0 0 0 6px rgba(201,36,46,0.1); }
+}
+ 
+/* Bouton submit avec loading */
+.btn-submit-login {
+    position: relative;
+    overflow: hidden;
+}
+.btn-submit-login::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%;
+    height: 200%;
+    background: rgba(255,255,255,0.15);
+    transform: skewX(-20deg);
+    animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+    0%   { left: -60%; }
+    100% { left: 120%; }
+}
+ 
+/* ══════════════════════════════════════════════
+   FIXES SPÉCIFIQUES — Portail Étudiant
+══════════════════════════════════════════════ */
+ 
+/* Fix carte profil */
+.digital-student-card {
+    width: 320px;
+    background: linear-gradient(135deg, #C9242E 0%, #8b151e 60%, #5a0d13 100%);
+    border-radius: 20px;
+    color: white;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(201,36,46,0.4);
+}
+ 
+.card-photo {
+    width: 80px; height: 80px;
+    border-radius: 14px;
+    border: 3px solid rgba(255,255,255,0.8);
+    object-fit: cover;
+}
+ 
+/* Grille emploi du temps */
+.emploi-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+.emploi-col { min-width: 130px; }
+.emploi-day-header {
+    background: linear-gradient(135deg, #C9242E, #8b151e);
+    color: white;
+    text-align: center;
+    padding: 10px 6px;
+    border-radius: 8px 8px 0 0;
+    font-weight: 700; font-size: 0.83rem;
+    letter-spacing: 0.5px;
+}
+.emploi-seance {
+    background: white;
+    border: 1px solid #e4e9f2;
+    border-left: 4px solid #3498db;
+    border-radius: 0 0 8px 8px;
+    padding: 10px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+.emploi-seance:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.emploi-seance.emploi-td { border-left-color: #27ae60; }
+.emploi-seance.emploi-tp { border-left-color: #f39c12; }
+ 
+/* Notes table améliorée */
+.note-row-validee   { background: rgba(39,174,96,0.04); }
+.note-row-insuffisant { background: rgba(201,36,46,0.04); }
+ 
+/* Progress absences */
+.abs-progress-bar {
+    height: 6px; background: #e4e9f2;
+    border-radius: 10px; overflow: hidden;
+    margin-top: 4px;
+}
+.abs-progress-fill { height: 100%; border-radius: 10px; transition: width 1s ease; }
+ 
+/* Réclamation form style */
+#recl-details, #doc-motif {
+    border: 1.5px solid #e4e9f2;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    width: 100%;
+    resize: vertical;
+    min-height: 120px;
+    transition: border-color 0.2s;
+    background: #fafbff;
+}
+#recl-details:focus, #doc-motif:focus { border-color: #C9242E; outline: none; }
+ 
+/* Alertes pédagogiques urgentes */
+.alert-urgent {
+    animation: alert-blink 2s ease-in-out infinite;
+}
+@keyframes alert-blink {
+    0%, 100% { border-left-color: #f39c12; }
+    50%       { border-left-color: #C9242E; }
+}
+ 
+/* Notification badge sur nav */
+.nav-item .nav-badge {
+    background: #C9242E;
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 10px;
+    margin-left: auto;
+}
+ 
+/* Modal de confirmation réclamation */
+.modal-confirm {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+    backdrop-filter: blur(4px);
+    animation: fadeInModal 0.2s ease;
+}
+@keyframes fadeInModal { from { opacity:0; } to { opacity:1; } }
+.modal-confirm-box {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    animation: modalUp 0.3s cubic-bezier(0.34,1.5,0.64,1);
+}
+@keyframes modalUp {
+    from { transform: translateY(20px) scale(0.95); }
+    to   { transform: translateY(0) scale(1); }
+}
+ 
+/* Finances — tranche cards */
+.finance-tranche-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid #e4e9f2;
+    border-radius: 12px;
+    background: #fafbff;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+.finance-tranche-card:hover { border-color: #C9242E; box-shadow: 0 4px 14px rgba(201,36,46,0.08); }
+.finance-tranche-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+ 
+/* Reclamations status pill animé */
+.status-pill-animate {
+    animation: status-appear 0.4s ease both;
+}
+@keyframes status-appear {
+    from { opacity: 0; transform: scale(0.7); }
+    to   { opacity: 1; transform: scale(1); }
+}
+    </style>
+</head>
+<body>
+ 
+<!-- ═══════════════════════════════════════════════════════════
+     ÉCRAN DE CONNEXION AMÉLIORÉ
+═══════════════════════════════════════════════════════════ -->
+<div id="login-screen" class="screen active">
+    <!-- Slider de fond animé -->
+    <div class="bg-slider" id="bg-slider">
+        <div class="bg-slide active"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+    </div>
+ 
+    <!-- Particules dynamiques (générées par JS) -->
+    <div id="particles-container"></div>
+ 
+    <div class="login-container">
+        <div class="login-header">
+            <div class="student-badge">
+                <i class="fas fa-user-graduate"></i>
+            </div>
+            <h2><span class="text-primary">My EPI</span> App</h2>
+            <p>Espace Étudiant — Portail Académique</p>
+        </div>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="cin"><i class="fas fa-id-card"></i> Numéro de CIN</label>
+                <input type="text" id="cin" placeholder="Ex: 12345678" required autocomplete="username">
+            </div>
+            <div class="input-group">
+                <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+                <div style="position:relative;">
+                    <input type="password" id="password" placeholder="Votre mot de passe" required autocomplete="current-password" style="padding-right:44px;">
+                    <button type="button" id="toggle-pwd"
+                        style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#8892a4;cursor:pointer;font-size:1rem;padding:4px;">
+                        <i class="fas fa-eye" id="eye-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-submit-login" style="height:50px;font-size:1rem;border-radius:10px;margin-top:8px;">
+                <i class="fas fa-sign-in-alt"></i> Se connecter
+            </button>
+            
+        </form>
+    </div>
+ 
+    <!-- Points de navigation du slider -->
+    <div class="slide-dots" id="slide-dots">
+        <div class="slide-dot active" onclick="goToSlide(0)"></div>
+        <div class="slide-dot" onclick="goToSlide(1)"></div>
+        <div class="slide-dot" onclick="goToSlide(2)"></div>
+        <div class="slide-dot" onclick="goToSlide(3)"></div>
+    </div>
+</div>
+ 
+<!-- ═══════════════════════════════════════════════════════════
+     APPLICATION PRINCIPALE
+═══════════════════════════════════════════════════════════ -->
+<div id="app-screen" class="screen">
+ 
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/img/logo-epi.png" alt="EPI Logo" class="logo-img" onerror="this.style.display='none'">
+            <div class="student-label">ÉTUDIANT</div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" data-target="view-notifications">
+                <i class="fas fa-bell"></i> Actualités &amp; Clubs
+                <span class="nav-badge" id="badge-annonces" style="display:none;">0</span>
+            </li>
+            <li class="nav-item" data-target="view-profile">
+                <i class="fas fa-user-circle"></i> Mon Profil
+            </li>
+            <li class="nav-item" data-target="view-emploi">
+                <i class="fas fa-calendar-alt"></i> Emploi du temps
+            </li>
+            <li class="nav-item" data-target="view-absences">
+                <i class="fas fa-user-clock"></i> Mes Absences
+                <span class="nav-badge" id="badge-absences" style="display:none;">!</span>
+            </li>
+            <li class="nav-item" data-target="view-notes">
+                <i class="fas fa-graduation-cap"></i> Relevé de notes
+            </li>
+            <li class="nav-item" data-target="view-classroom">
+                <i class="fas fa-chalkboard-teacher"></i> Espace Cours
+            </li>
+            <li class="nav-item" data-target="view-messages">
+                <i class="fas fa-exclamation-triangle"></i> Alertes &amp; Rattrapages
+                <span class="nav-badge" id="badge-alertes" style="display:none;">0</span>
+            </li>
+            <li class="nav-item" data-target="view-finances">
+                <i class="fas fa-wallet"></i> Service Financier
+            </li>
+            <li class="nav-item" data-target="view-admin">
+                <i class="fas fa-building"></i> Administration
+            </li>
+            <li class="nav-item" data-target="view-reclamations">
+                <i class="fas fa-exclamation-circle"></i> Réclamations
+            </li>
+        </ul>
+        <div class="logout-container">
+            <button id="logout-btn" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Déconnexion
+            </button>
+        </div>
+    </aside>
+ 
+    <!-- CONTENU PRINCIPAL -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="page-title">
+                <h3 id="current-page-title">Actualités &amp; Clubs</h3>
+            </div>
+            <div class="user-info">
+                <span>Bienvenue, <strong id="user-name-display">Étudiant</strong></span>
+                <div style="position:relative;">
+                    <img id="user-avatar"
+                         src="https://ui-avatars.com/api/?name=E&background=C9242E&color=fff"
+                         alt="Avatar" class="avatar"
+                         style="cursor:pointer;" onclick="showView('view-profile')">
+                    <div id="user-online-dot"
+                         style="position:absolute;bottom:0;right:0;width:10px;height:10px;background:#27ae60;border-radius:50%;border:2px solid white;"></div>
+                </div>
+            </div>
+        </header>
+ 
+        <div class="content-wrapper">
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : TABLEAU DE BORD / ACTUALITÉS
+            ═══════════════════════════════════════════ -->
+            <section id="view-notifications" class="view active">
+                <div class="kpi-grid">
+                    <div class="kpi-card" style="cursor:pointer;" onclick="showView('view-notes')">
+                        <div class="kpi-icon" style="background:rgba(201,36,46,0.1);color:#C9242E;">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-value" id="kpi-moyenne">--</span>
+                            <span class="kpi-label">Moyenne Générale /20</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="cursor:pointer;" onclick="showView('view-absences')">
+                        <div class="kpi-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-value" id="kpi-absences">0</span>
+                            <span class="kpi-label">Heures d'absence</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="cursor:pointer;" onclick="showView('view-notes')">
+                        <div class="kpi-icon" style="background:rgba(52,152,219,0.1);color:#3498db;">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-value" id="kpi-credits">--</span>
+                            <span class="kpi-label">Crédits validés</span>
+                        </div>
+                    </div>
+                    <div class="kpi-card" style="cursor:pointer;" onclick="showView('view-finances')">
+                        <div class="kpi-icon" style="background:rgba(243,156,18,0.1);color:#f39c12;">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="kpi-info">
+                            <span class="kpi-value" id="kpi-finances">--</span>
+                            <span class="kpi-label">Situation financière</span>
+                        </div>
+                    </div>
+                </div>
+ 
+                <!-- Alertes pédagogiques urgentes -->
+                <div id="alertes-container"></div>
+ 
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-bullhorn text-primary"></i> Annonces Générales</h3>
+                        <div class="list-group" id="annonces-list">
+                            <p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement…</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-users text-primary"></i> Vie Associative &amp; Clubs</h3>
+                        <div class="list-group">
+                            <div class="list-item">
+                                <span class="badge badge-info">Club</span>
+                                <h4>Club Robotique — Réunion</h4>
+                                <p>Rejoignez-nous mercredi à 14h au labo 3 pour la préparation de la compétition nationale.</p>
+                                <small><i class="fas fa-map-marker-alt"></i> Labo 3 · Mercredi 14h00</small>
+                            </div>
+                            <div class="list-item">
+                                <span class="badge badge-warning">Événement</span>
+                                <h4>EPI IT Day 2026</h4>
+                                <p>Inscrivez-vous aux workshops de développement web, IA et cybersécurité. Entrée gratuite sur inscription.</p>
+                                <small><i class="fas fa-calendar"></i> 25 Mai 2026 · Amphithéâtre principal</small>
+                            </div>
+                            <div class="list-item">
+                                <span class="badge badge-success">Sport</span>
+                                <h4>Tournoi de Football Inter-Filières</h4>
+                                <p>Inscrivez votre équipe avant le 12 Mai. 3 joueurs minimum par équipe. Trophée en jeu !</p>
+                                <small><i class="fas fa-futbol"></i> Terrain principal · 14 Mai</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : MON PROFIL
+            ═══════════════════════════════════════════ -->
+            <section id="view-profile" class="view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-user-circle text-primary"></i> Informations Personnelles</h3>
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label>Nom complet</label>
+                                <input type="text" id="profile-nom" disabled placeholder="—">
+                            </div>
+                            <div class="input-group">
+                                <label>Filière</label>
+                                <input type="text" id="profile-filiere" disabled placeholder="—">
+                            </div>
+                            <div class="input-group">
+                                <label>Classe</label>
+                                <input type="text" id="profile-classe" disabled placeholder="—">
+                            </div>
+                            <div class="input-group">
+                                <label>Email Académique</label>
+                                <input type="email" id="profile-email" disabled placeholder="—">
+                            </div>
+                            <div class="input-group">
+                                <label>CIN</label>
+                                <input type="text" id="profile-cin" disabled placeholder="—">
+                            </div>
+                            <div class="input-group">
+                                <label>Statut</label>
+                                <input type="text" id="profile-statut" disabled placeholder="—">
+                            </div>
+                            <div class="input-group">
+                                <label>Téléphone</label>
+                                <input type="text" id="profile-telephone" disabled placeholder="—">
+                            </div>
+                            <div class="input-group">
+                                <label>Date de naissance</label>
+                                <input type="text" id="profile-dob" disabled placeholder="—">
+                            </div>
+                        </div>
+                        <!-- Bouton changer mot de passe -->
+                        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e4e9f2;">
+                            <button class="btn btn-outline btn-sm" onclick="showChangePwd()">
+                                <i class="fas fa-key"></i> Changer mon mot de passe
+                            </button>
+                        </div>
+                        <!-- Formulaire changement mdp (caché par défaut) -->
+                        <div id="change-pwd-form" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid #e4e9f2;">
+                            <div class="input-group">
+                                <label>Mot de passe actuel</label>
+                                <input type="password" id="current-pwd" autocomplete="current-password" placeholder="Votre mot de passe actuel">
+                            </div>
+                            <div class="input-group">
+                                <label>Nouveau mot de passe</label>
+                                <input type="password" id="new-pwd" autocomplete="new-password" placeholder="8 caractères min., lettres + chiffres">
+                            </div>
+                            <div class="input-group">
+                                <label>Confirmer</label>
+                                <input type="password" id="confirm-pwd" placeholder="Répétez le mot de passe">
+                            </div>
+                            <div style="display:flex;gap:10px;">
+                                <button class="btn btn-primary btn-sm" onclick="changePwd()">
+                                    <i class="fas fa-save"></i> Enregistrer
+                                </button>
+                                <button class="btn btn-outline btn-sm" onclick="document.getElementById('change-pwd-form').style.display='none'">
+                                    Annuler
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <div class="card d-flex-center">
+                            <div class="digital-student-card">
+                                <div class="card-header">
+                                    <h4>EPI <span style="font-weight:400;">Université</span></h4>
+                                    <span>2025/2026</span>
+                                </div>
+                                <div class="card-body">
+                                    <img src="https://ui-avatars.com/api/?name=Foulen&background=fff&color=C9242E" alt="Photo" class="card-photo">
+                                    <div class="card-details">
+                                        <h5>Foulen Ben Foulen</h5>
+                                        <p>CIN: <strong>12345678</strong></p>
+                                        <p>Génie Logiciel</p>
+                                        <p>3ème Année</p>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <i class="fas fa-qrcode"></i> Scanner la carte
+                                </div>
+                            </div>
+                            <div class="nfc-notice" style="margin-top:18px;">
+                                <i class="fas fa-mobile-alt text-primary"></i> <em>Pointage NFC : Ouvrez l'application mobile My EPI App pour valider votre présence en classe.</em>
+                            </div>
+                        </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : EMPLOI DU TEMPS
+            ═══════════════════════════════════════════ -->
+            <section id="view-emploi" class="view">
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:20px;">
+                        <h3><i class="fas fa-calendar-alt text-primary"></i> Emploi du temps — Semestre 2</h3>
+                        <div style="display:flex;gap:10px;align-items:center;">
+                            <select id="filter-semestre" class="custom-select" style="min-width:130px;" onchange="loadEmploi()">
+                                <option value="2">Semestre 2</option>
+                                <option value="1">Semestre 1</option>
+                            </select>
+                            <button class="btn btn-outline btn-sm" onclick="window.print()">
+                                <i class="fas fa-print"></i> Imprimer
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Légende types de séances -->
+                    <div style="display:flex;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+                        <span style="font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span style="width:14px;height:14px;border-radius:3px;background:#3498db;display:inline-block;"></span> Cours
+                        </span>
+                        <span style="font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span style="width:14px;height:14px;border-radius:3px;background:#27ae60;display:inline-block;"></span> TD
+                        </span>
+                        <span style="font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span style="width:14px;height:14px;border-radius:3px;background:#f39c12;display:inline-block;"></span> TP
+                        </span>
+                    </div>
+                    <div id="emploi-container">
+                        <p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement de l'emploi du temps…</p>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : MES ABSENCES
+            ═══════════════════════════════════════════ -->
+            <section id="view-absences" class="view">
+                <div class="kpi-grid" style="margin-bottom:20px;">
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(201,36,46,0.1);color:#C9242E;"><i class="fas fa-clock"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="abs-total">0</span><span class="kpi-label">Heures totales</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;"><i class="fas fa-check-circle"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="abs-justifie">0</span><span class="kpi-label">Heures justifiées</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(243,156,18,0.1);color:#f39c12;"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="abs-plafond">30</span><span class="kpi-label">Plafond autorisé (h)</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(52,152,219,0.1);color:#3498db;"><i class="fas fa-info-circle"></i></div>
+                        <div class="kpi-info"><span class="kpi-value">25%</span><span class="kpi-label">Seuil non-autorisé</span></div>
+                    </div>
+                </div>
+ 
+                <!-- Barre de progression absences -->
+                <div id="abs-progress-section" class="card" style="margin-bottom:20px;display:none;">
+                    <h3><i class="fas fa-chart-line text-primary"></i> Progression absences</h3>
+                    <div id="abs-progress-list"></div>
+                </div>
+ 
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:16px;">
+                        <h3><i class="fas fa-user-check text-primary"></i> Détail des absences</h3>
+                        <button class="btn btn-outline btn-sm" onclick="exportAbsences()">
+                            <i class="fas fa-download"></i> Exporter
+                        </button>
+                    </div>
+                    <div class="absence-alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <span>Au-delà de <strong>25%</strong> d'absences par matière, votre statut passe en "Non Autorisé".</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="absences-table">
+                            <thead>
+                                <tr><th>Date</th><th>Matière</th><th>Durée</th><th>Enseignant</th><th>Justification</th><th>Observation</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="6" class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : RELEVÉ DE NOTES
+            ═══════════════════════════════════════════ -->
+            <section id="view-notes" class="view">
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:20px;">
+                        <h3><i class="fas fa-graduation-cap text-primary"></i> Relevé de notes — 2025/2026</h3>
+                        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                            <div class="total-moyenne" style="margin:0;">
+                                Moy. Générale : <strong id="notes-moy-gen">--</strong> / 20
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="exportNotes()">
+                                <i class="fas fa-download"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div id="notes-container">
+                        <p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement des notes…</p>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : ESPACE COURS
+            ═══════════════════════════════════════════ -->
+            <section id="view-classroom" class="view">
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:20px;">
+                        <h3><i class="fas fa-chalkboard-teacher text-primary"></i> Supports de cours</h3>
+                        <input type="text" id="search-cours" placeholder="🔍 Rechercher un cours…"
+                               class="search-input" style="max-width:250px;" oninput="filterCours()">
+                    </div>
+                    <div id="cours-container" class="list-group">
+                        <p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement des cours…</p>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : ALERTES & RATTRAPAGES
+            ═══════════════════════════════════════════ -->
+            <section id="view-messages" class="view">
+                <div class="card">
+                    <h3><i class="fas fa-exclamation-triangle text-primary"></i> Alertes Pédagogiques &amp; Rattrapages</h3>
+                    <div id="alertes-list">
+                        <p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement des alertes…</p>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : SERVICE FINANCIER
+            ═══════════════════════════════════════════ -->
+            <section id="view-finances" class="view">
+                <div class="kpi-grid" style="margin-bottom:20px;">
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(52,152,219,0.1);color:#3498db;"><i class="fas fa-file-invoice-dollar"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="fin-total">—</span><span class="kpi-label">Total dû (TND)</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;"><i class="fas fa-check-circle"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="fin-paye">—</span><span class="kpi-label">Total payé (TND)</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(243,156,18,0.1);color:#f39c12;"><i class="fas fa-hourglass-half"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="fin-restant">—</span><span class="kpi-label">Restant (TND)</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(201,36,46,0.1);color:#C9242E;"><i class="fas fa-wallet"></i></div>
+                        <div class="kpi-info"><span class="kpi-value">3</span><span class="kpi-label">Tranches totales</span></div>
+                    </div>
+                </div>
+ 
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-wallet text-primary"></i> Situation Financière</h3>
+                        <div id="finances-cards"></div>
+                        <div style="overflow-x:auto;margin-top:16px;">
+                            <table class="data-table" id="finances-table">
+                                <thead>
+                                    <tr><th>Tranche</th><th>Montant</th><th>Échéance</th><th>Paiement</th><th>Statut</th></tr>
+                                </thead>
+                                <tbody><tr><td colspan="5" class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-paper-plane text-primary"></i> Contacter le Service Financier</h3>
+                        <div class="input-group">
+                            <label>Sujet</label>
+                            <select id="fin-sujet" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.95rem;font-family:inherit;background:#fafbff;width:100%;">
+                                <option>Demande de délai de paiement</option>
+                                <option>Problème de reçu</option>
+                                <option>Demande de reçu</option>
+                                <option>Exonération / Bourse</option>
+                                <option>Autre</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Message</label>
+                            <textarea id="fin-message" rows="4" placeholder="Expliquez votre situation…"
+                                style="padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.95rem;font-family:inherit;resize:vertical;width:100%;"></textarea>
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" onclick="sendFinanceMessage()">
+                            <i class="fas fa-paper-plane"></i> Envoyer la demande
+                        </button>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : ADMINISTRATION
+            ═══════════════════════════════════════════ -->
+            <section id="view-admin" class="view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-file-signature text-primary"></i> Demander un Document</h3>
+                        <form id="doc-form">
+                            <div class="input-group">
+                                <label for="doc-type">Type de document</label>
+                                <select id="doc-type" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.95rem;font-family:inherit;background:#fafbff;width:100%;">
+                                    <option value="attestation_presence">Attestation de présence</option>
+                                    <option value="releve_notes">Relevé de notes officiel</option>
+                                    <option value="attestation_scolarite">Attestation de scolarité</option>
+                                    <option value="convention_stage">Convention de stage</option>
+                                    <option value="certificat_reussite">Certificat de réussite</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="doc-motif">Motif / Destination</label>
+                                <input type="text" id="doc-motif" placeholder="Ex: Stage en entreprise, Candidature Master…" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-paper-plane"></i> Soumettre la demande
+                            </button>
+                        </form>
+                        <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:16px;">
+                            <h3 style="margin-bottom:14px;padding-bottom:0;border:none;font-size:0.95rem;">
+                                <i class="fas fa-id-badge text-primary"></i> Autres services
+                            </h3>
+                            <div class="grid-3" style="gap:12px;">
+                                <div class="admin-service-card" style="padding:16px 12px;">
+                                    <i class="fas fa-briefcase"></i>
+                                    <h4>Stage &amp; PFE</h4>
+                                    <p>Déposer une convention.</p>
+                                    <button class="btn btn-outline w-100" style="padding:7px 10px;font-size:0.8rem;"
+                                            onclick="toast('Module Stage/PFE bientôt disponible.','info')">
+                                        Accéder
+                                    </button>
+                                </div>
+                                <div class="admin-service-card" style="padding:16px 12px;">
+                                    <i class="fas fa-envelope"></i>
+                                    <h4>Messagerie Admin</h4>
+                                    <p>Contacter l'administration.</p>
+                                    <button class="btn btn-outline w-100" style="padding:7px 10px;font-size:0.8rem;"
+                                            onclick="showView('view-reclamations')">
+                                        Envoyer
+                                    </button>
+                                </div>
+                                <div class="admin-service-card" style="padding:16px 12px;">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <h4>Calendrier</h4>
+                                    <p>Dates importantes.</p>
+                                    <button class="btn btn-outline w-100" style="padding:7px 10px;font-size:0.8rem;"
+                                            onclick="showView('view-notifications')">
+                                        Voir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-list-ul text-primary"></i> Suivi de mes demandes</h3>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="docs-table">
+                                <thead>
+                                    <tr><th>Document</th><th>Motif</th><th>Date</th><th>Statut</th><th>Fichier</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td colspan="5" class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- ═══════════════════════════════════════════
+                 VUE : RÉCLAMATIONS
+            ═══════════════════════════════════════════ -->
+            <section id="view-reclamations" class="view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-exclamation-circle text-primary"></i> Nouvelle Réclamation</h3>
+                        <form id="reclamation-form">
+                            <div class="input-group">
+                                <label for="recl-type">Type de réclamation</label>
+                                <select id="recl-type" style="padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:0.95rem;font-family:inherit;background:#fafbff;width:100%;">
+                                    <option value="Erreur sur une note">Erreur sur une note</option>
+                                    <option value="Problème emploi du temps">Problème d'emploi du temps</option>
+                                    <option value="Infrastructure">Infrastructure (Matériel défectueux)</option>
+                                    <option value="Absence injustifiée">Absence marquée injustement</option>
+                                    <option value="Service Financier">Service Financier</option>
+                                    <option value="Autre">Autre</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="recl-details">Détails de la réclamation</label>
+                                <textarea id="recl-details" rows="5" placeholder="Décrivez le problème avec précision…" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-paper-plane"></i> Soumettre la réclamation
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom:18px;">
+                            <h3><i class="fas fa-list-ul text-primary"></i> Mes Réclamations</h3>
+                            <button class="btn btn-outline btn-sm" onclick="loadReclamations()">
+                                <i class="fas fa-sync-alt"></i> Actualiser
+                            </button>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table" id="reclamations-table">
+                                <thead>
+                                    <tr><th>Type</th><th>Statut</th><th>Date</th><th>Réponse</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td colspan="4" class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement…</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+ 
+        </div><!-- /.content-wrapper -->
+    </main>
+</div><!-- /#app-screen -->
+ 
+<script src="assets/js/common.js"></script>
+<script src="assets/js/etudiant.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   ANIMATED LOGIN BACKGROUND
+══════════════════════════════════════════ */
+(function() {
+    const slides = document.querySelectorAll('.bg-slide');
+    const dots   = document.querySelectorAll('.slide-dot');
+    let current  = 0;
+    let timer;
+ 
+    window.goToSlide = function(idx) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = idx;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+        clearInterval(timer);
+        startTimer();
+    };
+ 
+    function nextSlide() {
+        goToSlide((current + 1) % slides.length);
+    }
+ 
+    function startTimer() { timer = setInterval(nextSlide, 5000); }
+    startTimer();
+ 
+    /* Particules flottantes */
+    const container = document.getElementById('particles-container');
+    if (container) {
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 40 + 10;
+            p.style.cssText = `
+                width: ${size}px; height: ${size}px;
+                left: ${Math.random() * 100}%;
+                animation-duration: ${Math.random() * 15 + 10}s;
+                animation-delay: ${Math.random() * 10}s;
+            `;
+            container.appendChild(p);
+        }
+    }
+ 
+    /* Toggle mot de passe */
+    document.getElementById('toggle-pwd')?.addEventListener('click', function() {
+        const inp  = document.getElementById('password');
+        const icon = document.getElementById('eye-icon');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            inp.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    });
+})();
+ 
+/* ══════════════════════════════════════════
+   FONCTIONS UTILITAIRES SUPPLÉMENTAIRES
+══════════════════════════════════════════ */
+ 
+/* Changement mot de passe (UI) */
+function showChangePwd() {
+    const f = document.getElementById('change-pwd-form');
+    f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+ 
+async function changePwd() {
+    const cur = document.getElementById('current-pwd').value;
+    const np  = document.getElementById('new-pwd').value;
+    const cp  = document.getElementById('confirm-pwd').value;
+    if (!cur) { toast('Saisissez votre mot de passe actuel.', 'error'); return; }
+    if (np !== cp) { toast('Les mots de passe ne correspondent pas.', 'error'); return; }
+    try {
+        await apiFetch('change_password', { current_password: cur, new_password: np });
+        toast('Mot de passe modifié avec succès.', 'success');
+        document.getElementById('change-pwd-form').style.display = 'none';
+        ['current-pwd', 'new-pwd', 'confirm-pwd'].forEach(id => document.getElementById(id).value = '');
+    } catch (err) {
+        toast(err.message, 'error');   // ex. mot de passe actuel incorrect / trop faible
+    }
+}
+ 
+/* Export absences en CSV */
+function exportAbsences() {
+    const rows = document.querySelectorAll('#absences-table tbody tr');
+    if (!rows.length) { toast('Aucune donnée à exporter.', 'error'); return; }
+    let csv = 'Date,Matière,Durée,Enseignant,Justification,Observation\n';
+    rows.forEach(r => {
+        const cells = r.querySelectorAll('td');
+        if (cells.length >= 6) {
+            csv += [cells[0].innerText, cells[1].innerText, cells[2].innerText,
+                    cells[3].innerText, cells[4].innerText, cells[5].innerText]
+                .map(v => `"${v.replace(/"/g,'""')}"`)
+                .join(',') + '\n';
+        }
+    });
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'absences_epi.csv';
+    link.click();
+    toast('Export CSV téléchargé !', 'success');
+}
+ 
+/* Export notes en CSV */
+function exportNotes() {
+    const rows = document.querySelectorAll('#notes-container table tbody tr');
+    if (!rows.length) { toast('Aucune note à exporter.', 'error'); return; }
+    let csv = 'Matière,Crédits,CC,DS,Examen,Moyenne,Statut\n';
+    rows.forEach(r => {
+        const cells = r.querySelectorAll('td');
+        if (cells.length >= 7) {
+            csv += [cells[0].innerText, cells[1].innerText, cells[2].innerText,
+                    cells[3].innerText, cells[4].innerText, cells[5].innerText, cells[6].innerText]
+                .map(v => `"${v.replace(/"/g,'""')}"`)
+                .join(',') + '\n';
+        }
+    });
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'releve_notes_epi.csv';
+    link.click();
+    toast('Relevé de notes exporté !', 'success');
+}
+ 
+/* Filtre cours par matière */
+function filterCours() {
+    const q = document.getElementById('search-cours')?.value.toLowerCase() || '';
+    document.querySelectorAll('#cours-container .course-card').forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(q) ? '' : 'none';
+    });
+}
+ 
+/* Envoi message service financier */
+function sendFinanceMessage() {
+    const sujet = document.getElementById('fin-sujet').value;
+    const msg   = document.getElementById('fin-message').value.trim();
+    if (!msg) { toast('Veuillez rédiger votre message.', 'error'); return; }
+    // Simulation envoi (dans un vrai projet, appel API)
+    toast(`Message envoyé au service financier : "${sujet}"`, 'success');
+    document.getElementById('fin-message').value = '';
+}
+</script>
+</body>
+</html>

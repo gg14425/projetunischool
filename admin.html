@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Administrateur | My EPI App</title>
+    <link rel="stylesheet" href="assets/css/admin.css">
+    <link rel="stylesheet" href="assets/css/toast.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* ══════════════════════════════════════════════
+   LOGIN ANIMATED BACKGROUND — Admin Portal
+══════════════════════════════════════════════ */
+.bg-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    overflow: hidden;
+    background-image:
+        linear-gradient(
+            135deg,
+            rgba(71, 0, 102, 0.82),
+            rgba(140, 0, 200, 0.28),
+            rgba(0, 0, 0, 0.45)
+        ),
+        url("assets/img/background.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: zoomBg 12s ease-in-out infinite alternate;
+}
+
+/* Purple reflections */
+.bg-slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(100, 0, 160, 0.65),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at bottom left,
+            rgba(71, 0, 102, 0.40),
+            transparent 45%
+        ),
+        linear-gradient(
+            to bottom,
+            rgba(60, 7, 85, 0.18),
+            transparent 55%
+        );
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+/* Moving cinematic light */
+.bg-slide::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 70%;
+    height: 100%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.07),
+        transparent
+    );
+    transform: skewX(-20deg);
+    animation: shineMove 7s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes zoomBg {
+    from { transform: scale(1); }
+    to   { transform: scale(1.08); }
+}
+@keyframes shineMove {
+    to { left: 150%; }
+}
+
+/* Overlay verre dépoli */
+#login-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+}
+
+/* Particules flottantes */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    animation: float-particle linear infinite;
+    z-index: 1;
+}
+@keyframes float-particle {
+    0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+/* Conteneur login */
+.login-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 45px 40px;
+    border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+    width: 90%;
+    max-width: 420px;
+    animation: loginAppear 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes loginAppear {
+    from { opacity: 0; transform: translateY(40px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Badge admin avec couleurs violettes du site */
+.admin-badge {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, #470066, #3c0755);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    color: white;
+    font-size: 1.8rem;
+    box-shadow: 0 8px 24px rgba(71,0,102,0.45);
+    animation: badge-pulse-admin 3s ease-in-out infinite;
+}
+@keyframes badge-pulse-admin {
+    0%, 100% { box-shadow: 0 8px 24px rgba(71,0,102,0.45); }
+    50%       { box-shadow: 0 12px 36px rgba(71,0,102,0.65), 0 0 0 6px rgba(71,0,102,0.12); }
+}
+
+/* Bouton submit avec shimmer */
+.btn-submit-admin {
+    position: relative;
+    overflow: hidden;
+    height: 50px;
+    font-size: 1rem;
+    border-radius: 10px;
+    margin-top: 8px;
+}
+.btn-submit-admin::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%;
+    height: 200%;
+    background: rgba(255,255,255,0.15);
+    transform: skewX(-20deg);
+    animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+    0%   { left: -60%; }
+    100% { left: 120%; }
+}
+
+/* Slide-dots */
+.slide-dots {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 3;
+}
+.slide-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.slide-dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
+}
+    </style>
+</head>
+<body>
+<div id="login-screen" class="screen active">
+    <!-- Slider de fond animé -->
+    <div class="bg-slider" id="bg-slider">
+        <div class="bg-slide active"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+    </div>
+
+    <!-- Particules dynamiques (générées par JS) -->
+    <div id="particles-container"></div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="admin-badge"><i class="fas fa-shield-alt"></i></div>
+            <h2><span class="text-primary">My EPI</span> App</h2>
+            <p>Espace Administrateur</p>
+        </div>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="admin-id"><i class="fas fa-user-shield"></i> Identifiant Administrateur</label>
+                <input type="text" id="admin-id" placeholder="Ex: ADMIN-001" required>
+            </div>
+            <div class="input-group">
+                <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+                <div style="position:relative;">
+                    <input type="password" id="password" placeholder="Votre mot de passe" required style="padding-right:44px;">
+                    <button type="button" id="toggle-pwd"
+                        style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#8892a4;cursor:pointer;font-size:1rem;padding:4px;">
+                        <i class="fas fa-eye" id="eye-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-submit-admin">
+                <i class="fas fa-sign-in-alt"></i> Accéder au Panneau Admin
+            </button>
+            <div class="login-footer">
+                <a href="#"><i class="fas fa-envelope"></i> Problème d'accès ? Contacter la DSI.</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Points de navigation du slider -->
+    <div class="slide-dots" id="slide-dots">
+        <div class="slide-dot active" onclick="goToSlide(0)"></div>
+        <div class="slide-dot" onclick="goToSlide(1)"></div>
+        <div class="slide-dot" onclick="goToSlide(2)"></div>
+        <div class="slide-dot" onclick="goToSlide(3)"></div>
+    </div>
+</div>
+<div id="app-screen" class="screen">
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <img src="assets/img/logo-epi.png" alt="EPI Logo" class="logo-img" onerror="this.style.display='none'">
+            <div class="admin-label">ADMIN</div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item active" data-target="view-dashboard"><i class="fas fa-tachometer-alt"></i> Tableau de bord</li>
+            <li class="nav-item" data-target="view-profile"><i class="fas fa-user-circle"></i> Mon Profil</li>
+            <li class="nav-item" data-target="view-users"><i class="fas fa-users-cog"></i> Gestion Utilisateurs</li>
+            <li class="nav-item" data-target="view-roles"><i class="fas fa-user-tag"></i> Rôles & Accès</li>
+            <li class="nav-item" data-target="view-notifications"><i class="fas fa-bell"></i> Notifications</li>
+            <li class="nav-item" data-target="view-stats"><i class="fas fa-chart-bar"></i> Statistiques</li>
+            <li class="nav-item" data-target="view-logs"><i class="fas fa-history"></i> Journal d'activité</li>
+        </ul>
+        <div class="logout-container">
+            <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div class="page-title"><h3 id="current-page-title">Tableau de bord</h3></div>
+            <div class="user-info">
+                <span>Bienvenue, <strong id="user-name-display">Administrateur</strong></span>
+                <img src="https://ui-avatars.com/api/?name=Admin&background=470066&color=fff" alt="Avatar" class="avatar">
+            </div>
+        </header>
+
+        <div class="content-wrapper">
+            <section id="view-dashboard" class="view active">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(201,36,46,0.1);color:#C9242E;"><i class="fas fa-user-graduate"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="kpi-etudiants">—</span><span class="kpi-label">Étudiants inscrits</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(52,152,219,0.1);color:#3498db;"><i class="fas fa-chalkboard-teacher"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="kpi-enseignants">—</span><span class="kpi-label">Enseignants actifs</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;"><i class="fas fa-users"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="kpi-users">—</span><span class="kpi-label">Utilisateurs actifs</span></div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-icon" style="background:rgba(243,156,18,0.1);color:#f39c12;"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div class="kpi-info"><span class="kpi-value" id="kpi-alertes">—</span><span class="kpi-label">Réclamations en attente</span></div>
+                    </div>
+                </div>
+                <div class="grid-2" style="margin-top:20px;">
+                    <div class="card">
+                        <h3><i class="fas fa-clock text-primary"></i> Activité récente</h3>
+                        <div class="list-group" id="recent-activity-list">
+                            <p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement…</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-tasks text-primary"></i> Tâches en attente</h3>
+                        <div class="list-group">
+                            <div class="list-item pending-task">
+                                <i class="fas fa-user-plus text-primary"></i>
+                                <div><h4>Gestion des comptes</h4><p>Créer, modifier ou suspendre des comptes utilisateurs.</p></div>
+                                <button class="btn btn-outline btn-sm" onclick="showView('view-users')">Accéder</button>
+                            </div>
+                            <div class="list-item pending-task">
+                                <i class="fas fa-bell text-warning"></i>
+                                <div><h4>Diffuser une notification</h4><p>Envoyer un message à toute la plateforme.</p></div>
+                                <button class="btn btn-outline btn-sm" onclick="showView('view-notifications')">Voir</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="view-profile" class="view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Informations Administrateur</h3>
+                        <div class="input-group"><label>Nom complet</label><input type="text" value="EPI Admin" disabled></div>
+                        <div class="input-group"><label>Rôle</label><input type="text" value="Responsable Scolarité" disabled></div>
+                        <div class="input-group"><label>Email</label><input type="email" value="admin@epi.tn" disabled></div>
+                        <div class="input-group"><label>Département</label><input type="text" value="Administration Générale" disabled></div>
+                    </div>
+                    <div class="card d-flex-center">
+                        <div class="admin-card">
+                            <div class="card-header"><h4>Administration EPI</h4><span>2025/2026</span></div>
+                            <div class="card-body">
+                                <div class="avatar" style="width:60px;height:60px;background:#470066;color:#fff;display:flex;align-items:center;justify-content:center;border-radius:12px;font-weight:bold;font-size:1.2rem;">AD</div>
+                                <div class="card-details"><h5>EPI Admin</h5><p><strong>ID :</strong> ADM001</p><p>Responsable Scolarité</p></div>
+                            </div>
+                            <div class="card-footer"><i class="fas fa-shield-alt"></i> Accès Administratif</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="view-users" class="view">
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:20px;">
+                        <h3><i class="fas fa-users-cog text-primary"></i> Gestion des Utilisateurs</h3>
+                        <button class="btn btn-primary" onclick="document.getElementById('modal-create-user').style.display='flex'">
+                            <i class="fas fa-plus"></i> Créer un utilisateur
+                        </button>
+                    </div>
+                    <div class="filters-bar">
+                        <input type="text" id="search-user" placeholder="🔍 Rechercher par nom, CIN, email…" class="search-input">
+                        <select class="custom-select" id="filter-role">
+                            <option value="">Tous les rôles</option>
+                            <option value="etudiant">Étudiant</option>
+                            <option value="enseignant">Enseignant</option>
+                            <option value="scolarite">Scolarité</option>
+                            <option value="admin">Administrateur</option>
+                        </select>
+                        <select class="custom-select" id="filter-status">
+                            <option value="">Tous les statuts</option>
+                            <option value="actif">Actif</option>
+                            <option value="suspendu">Suspendu</option>
+                            <option value="inactif">Inactif</option>
+                        </select>
+                    </div>
+                    <table class="data-table" id="users-table">
+                        <thead>
+                            <tr><th>Utilisateur</th><th>Rôle</th><th>Identifiant</th><th>Email</th><th>Statut</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody><tr><td colspan="6" class="text-muted">Chargement…</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="view-roles" class="view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-user-tag text-primary"></i> Rôles disponibles</h3>
+                        <div class="roles-list">
+                            <div class="role-item">
+                                <div class="role-icon" style="background:rgba(201,36,46,0.1);color:#C9242E;"><i class="fas fa-shield-alt"></i></div>
+                                <div class="role-details"><h4>Administrateur</h4><p>Accès total — gestion utilisateurs, logs, notifications.</p><small>Accès complet</small></div>
+                            </div>
+                            <div class="role-item">
+                                <div class="role-icon" style="background:rgba(39,174,96,0.1);color:#27ae60;"><i class="fas fa-university"></i></div>
+                                <div class="role-details"><h4>Scolarité</h4><p>Emplois du temps, notes, annonces, documents.</p><small>Accès académique</small></div>
+                            </div>
+                            <div class="role-item">
+                                <div class="role-icon" style="background:rgba(28,59,112,0.1);color:#1C3B70;"><i class="fas fa-chalkboard-teacher"></i></div>
+                                <div class="role-details"><h4>Enseignant</h4><p>Appel, notes, cours pour ses propres classes.</p><small>Accès restreint</small></div>
+                            </div>
+                            <div class="role-item">
+                                <div class="role-icon" style="background:rgba(52,152,219,0.1);color:#3498db;"><i class="fas fa-user-graduate"></i></div>
+                                <div class="role-details"><h4>Étudiant</h4><p>Consultation notes, absences, emploi du temps.</p><small>Lecture seule</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-key text-primary"></i> Permissions par rôle</h3>
+                        <div class="input-group">
+                            <label>Sélectionner un rôle</label>
+                            <select class="custom-select" id="role-select" onchange="loadPermissions(this.value)">
+                                <option value="">— Choisir —</option>
+                                <option value="scolarite">Scolarité</option>
+                                <option value="enseignant">Enseignant</option>
+                                <option value="etudiant">Étudiant</option>
+                            </select>
+                        </div>
+                        <div id="permissions-panel" style="display:none;">
+                            <div class="permissions-grid">
+                                <div class="permission-item"><label class="perm-toggle"><input type="checkbox" id="perm-notes"> Gérer les notes</label></div>
+                                <div class="permission-item"><label class="perm-toggle"><input type="checkbox" id="perm-emploi"> Gérer les emplois du temps</label></div>
+                                <div class="permission-item"><label class="perm-toggle"><input type="checkbox" id="perm-users"> Gérer les utilisateurs</label></div>
+                                <div class="permission-item"><label class="perm-toggle"><input type="checkbox" id="perm-annonces"> Publier des annonces</label></div>
+                                <div class="permission-item"><label class="perm-toggle"><input type="checkbox" id="perm-stats"> Voir les statistiques</label></div>
+                                <div class="permission-item"><label class="perm-toggle"><input type="checkbox" id="perm-finances"> Accès finances</label></div>
+                            </div>
+                            <button class="btn btn-primary w-100" style="margin-top:16px;" onclick="alert('Permissions enregistrées !')">
+                                <i class="fas fa-save"></i> Enregistrer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="view-notifications" class="view">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3><i class="fas fa-paper-plane text-primary"></i> Créer une notification</h3>
+                        <form id="form-notification">
+                            <div class="input-group">
+                                <label>Destinataires</label>
+                                <select class="custom-select w-100" id="notif-dest">
+                                    <option value="tous">Tous les utilisateurs</option>
+                                    <option value="etudiants">Étudiants uniquement</option>
+                                    <option value="enseignants">Enseignants uniquement</option>
+                                    <option value="scolarite">Personnel Scolarité</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Type</label>
+                                <select class="custom-select w-100" id="notif-type">
+                                    <option value="annonce">📢 Annonce générale</option>
+                                    <option value="alerte">⚠️ Alerte urgente</option>
+                                    <option value="info">ℹ️ Information</option>
+                                    <option value="urgence">🚨 Urgence</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Titre</label>
+                                <input type="text" id="notif-titre" placeholder="Titre de la notification" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Message</label>
+                                <textarea id="notif-message" rows="4" placeholder="Rédigez votre message…" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-bell"></i> Diffuser
+                            </button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-history text-primary"></i> Historique</h3>
+                        <div class="list-group" id="notif-history-list">
+                            <p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Chargement…</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="view-stats" class="view">
+                <div class="grid-2" style="margin-bottom:20px;">
+                    <div class="card">
+                        <h3><i class="fas fa-chart-line text-primary"></i> Utilisateurs actifs par jour</h3>
+                        <div class="chart-container">
+                            <div class="bar-chart">
+                                <div class="bar-group"><div class="bar" style="height:60%;"><span>Lun</span></div><div class="bar-val">812</div></div>
+                                <div class="bar-group"><div class="bar" style="height:85%;"><span>Mar</span></div><div class="bar-val">1148</div></div>
+                                <div class="bar-group"><div class="bar" style="height:75%;"><span>Mer</span></div><div class="bar-val">1014</div></div>
+                                <div class="bar-group"><div class="bar" style="height:90%;"><span>Jeu</span></div><div class="bar-val">1216</div></div>
+                                <div class="bar-group"><div class="bar" style="height:55%;"><span>Ven</span></div><div class="bar-val">743</div></div>
+                                <div class="bar-group"><div class="bar" style="height:30%;"><span>Sam</span></div><div class="bar-val">406</div></div>
+                                <div class="bar-group"><div class="bar" style="height:10%;"><span>Dim</span></div><div class="bar-val">135</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-pie-chart text-primary"></i> Répartition des utilisateurs</h3>
+                        <div class="donut-chart-container">
+                            <svg viewBox="0 0 200 200" class="donut-svg">
+                                <circle cx="100" cy="100" r="70" fill="none" stroke="#f4f7fa" stroke-width="30"/>
+                                <circle cx="100" cy="100" r="70" fill="none" stroke="#C9242E" stroke-width="30" stroke-dasharray="277 163" stroke-dashoffset="0" transform="rotate(-90 100 100)"/>
+                                <circle cx="100" cy="100" r="70" fill="none" stroke="#1C3B70" stroke-width="30" stroke-dasharray="60 380" stroke-dashoffset="-277" transform="rotate(-90 100 100)"/>
+                                <circle cx="100" cy="100" r="70" fill="none" stroke="#27ae60" stroke-width="30" stroke-dasharray="50 390" stroke-dashoffset="-337" transform="rotate(-90 100 100)"/>
+                                <circle cx="100" cy="100" r="70" fill="none" stroke="#f39c12" stroke-width="30" stroke-dasharray="13 427" stroke-dashoffset="-387" transform="rotate(-90 100 100)"/>
+                                <text x="100" y="95" text-anchor="middle" font-size="18" font-weight="bold" fill="#2c3e50">1 352</text>
+                                <text x="100" y="115" text-anchor="middle" font-size="10" fill="#7f8c8d">utilisateurs</text>
+                            </svg>
+                            <div class="legend" id="stats-roles">
+                                <div class="legend-item"><span class="dot" style="background:#C9242E;"></span> Étudiants — 1 248</div>
+                                <div class="legend-item"><span class="dot" style="background:#1C3B70;"></span> Enseignants — 87</div>
+                                <div class="legend-item"><span class="dot" style="background:#27ae60;"></span> Scolarité — 12</div>
+                                <div class="legend-item"><span class="dot" style="background:#f39c12;"></span> Admins — 3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-chart-bar text-primary"></i> Modules les plus consultés</h3>
+                    <div class="usage-stats">
+                        <div class="usage-row"><span>Emploi du temps</span><div class="progress-bar"><div class="progress-fill" style="width:91%;background:#C9242E;"></div></div><span>91%</span></div>
+                        <div class="usage-row"><span>Relevé de notes</span><div class="progress-bar"><div class="progress-fill" style="width:84%;background:#1C3B70;"></div></div><span>84%</span></div>
+                        <div class="usage-row"><span>Absences</span><div class="progress-bar"><div class="progress-fill" style="width:76%;background:#27ae60;"></div></div><span>76%</span></div>
+                        <div class="usage-row"><span>Espace Cours</span><div class="progress-bar"><div class="progress-fill" style="width:65%;background:#3498db;"></div></div><span>65%</span></div>
+                        <div class="usage-row"><span>Service Financier</span><div class="progress-bar"><div class="progress-fill" style="width:42%;background:#f39c12;"></div></div><span>42%</span></div>
+                    </div>
+                </div>
+            </section>
+            <section id="view-logs" class="view">
+                <div class="card">
+                    <div class="flex-between" style="margin-bottom:20px;">
+                        <h3><i class="fas fa-history text-primary"></i> Journal d'activité système</h3>
+                        <button class="btn btn-outline" onclick="exportLogs()"><i class="fas fa-file-export"></i> Exporter CSV</button>
+                    </div>
+                    <table class="data-table" id="logs-table">
+                        <thead>
+                            <tr><th>Horodatage</th><th>Utilisateur</th><th>Action</th><th>Détails</th><th>IP</th></tr>
+                        </thead>
+                        <tbody><tr><td colspan="5" class="text-muted">Chargement…</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+    </main>
+</div>
+<div id="modal-create-user" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:680px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus text-primary"></i> Créer un nouveau compte</h3>
+            <button class="modal-close" onclick="document.getElementById('modal-create-user').style.display='none'"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="form-create-user">
+        <div class="modal-body">
+            <div class="grid-2">
+                <div class="input-group"><label>Prénom *</label><input type="text" id="create-prenom" required placeholder="Prénom"></div>
+                <div class="input-group"><label>Nom *</label><input type="text" id="create-nom" required placeholder="NOM"></div>
+                <div class="input-group"><label>Email *</label><input type="email" id="create-email" required placeholder="prenom.nom@epi.ens.tn"></div>
+                <div class="input-group"><label>CIN / Matricule *</label><input type="text" id="create-cin" required placeholder="Ex: 12345678 ou ENS-001"></div>
+                <div class="input-group">
+                    <label>Rôle *</label>
+                    <select class="custom-select" id="create-role" style="min-width:0;width:100%;" required>
+                        <option value="">— Choisir un rôle —</option>
+                        <option value="etudiant">Étudiant</option>
+                        <option value="enseignant">Enseignant</option>
+                        <option value="scolarite">Scolarité</option>
+                        <option value="admin">Administrateur</option>
+                    </select>
+                </div>
+                <div class="input-group"><label>Mot de passe *</label><input type="password" id="create-password" required placeholder="8 caractères min., lettres + chiffres"></div>
+                <div class="input-group hidden" id="field-classe">
+                    <label>Classe (étudiant)</label>
+                    <select class="custom-select" id="create-classe" style="min-width:0;width:100%;"><option value="">— Classe —</option></select>
+                </div>
+                <div class="input-group hidden" id="field-dept">
+                    <label>Département (enseignant)</label>
+                    <select class="custom-select" id="create-dept" style="min-width:0;width:100%;"><option value="">— Département —</option></select>
+                </div>
+                <div class="input-group hidden" id="field-grade">
+                    <label>Grade (enseignant)</label>
+                    <input type="text" id="create-grade" placeholder="Ex: Maître de Conférences">
+                </div>
+                <div class="input-group hidden" id="field-poste">
+                    <label>Poste (scolarité)</label>
+                    <input type="text" id="create-poste" placeholder="Ex: Agent de scolarité">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-create-user').style.display='none'">Annuler</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Créer le compte</button>
+        </div>
+        </form>
+    </div>
+</div>
+<div id="modal-edit-user" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit text-primary"></i> Modifier l'utilisateur</h3>
+            <button class="modal-close" onclick="document.getElementById('modal-edit-user').style.display='none'"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="form-edit-user">
+        <div class="modal-body">
+            <input type="hidden" id="edit-user-id">
+            <div class="grid-2">
+                <div class="input-group"><label>Prénom</label><input type="text" id="edit-user-prenom" placeholder="Prénom"></div>
+                <div class="input-group"><label>Nom</label><input type="text" id="edit-user-nom" placeholder="NOM"></div>
+                <div class="input-group"><label>Email</label><input type="email" id="edit-user-email" placeholder="email@epi.ens.tn"></div>
+                <div class="input-group">
+                    <label>Statut</label>
+                    <select class="custom-select" id="edit-user-statut" style="min-width:0;width:100%;">
+                        <option value="actif">Actif</option>
+                        <option value="suspendu">Suspendu</option>
+                        <option value="inactif">Inactif</option>
+                    </select>
+                </div>
+                <div class="input-group" style="grid-column:span 2;">
+                    <label>Nouveau mot de passe <small style="color:#aaa">(laisser vide pour ne pas changer)</small></label>
+                    <input type="password" id="edit-user-password" placeholder="Nouveau mot de passe">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-edit-user').style.display='none'">Annuler</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+<!-- ===== MODAL CONFIRMER SUPPRESSION ===== -->
+<div id="modal-delete" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width:440px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle" style="color:#C9242E;"></i> Confirmer la suppression</h3>
+            <button class="modal-close" onclick="document.getElementById('modal-delete').style.display='none'"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="form-delete-user">
+        <input type="hidden" id="delete-user-id">
+        <div class="modal-body">
+            <p>Vous êtes sur le point de supprimer définitivement le compte de <strong id="delete-user-name"></strong>. Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-outline" onclick="document.getElementById('modal-delete').style.display='none'">Annuler</button>
+            <button type="submit" class="btn btn-primary" style="background:#C9242E;"><i class="fas fa-trash"></i> Supprimer définitivement</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function exportLogs() {
+    const rows = document.querySelectorAll('#logs-table tbody tr');
+    let csv = 'Horodatage,Utilisateur,Action,Détails,IP\n';
+    rows.forEach(r => {
+        const cells = r.querySelectorAll('td');
+        if (cells.length >= 5) {
+            csv += [cells[0].innerText, cells[1].innerText, cells[2].innerText, cells[3].innerText, cells[4].innerText]
+                .map(v => `"${v.replace(/"/g,'""')}"`).join(',') + '\n';
+        }
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'activity_logs.csv';
+    link.click();
+}
+</script>
+<script src="assets/js/common.js"></script>
+<script src="assets/js/admin.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   ANIMATED LOGIN BACKGROUND — Admin
+══════════════════════════════════════════ */
+(function() {
+    const slides = document.querySelectorAll('.bg-slide');
+    const dots   = document.querySelectorAll('.slide-dot');
+    let current  = 0;
+    let timer;
+
+    window.goToSlide = function(idx) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = idx;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+        clearInterval(timer);
+        startTimer();
+    };
+
+    function nextSlide() {
+        goToSlide((current + 1) % slides.length);
+    }
+    function startTimer() { timer = setInterval(nextSlide, 5000); }
+    startTimer();
+
+    /* Particules flottantes */
+    const container = document.getElementById('particles-container');
+    if (container) {
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 40 + 10;
+            p.style.cssText = `
+                width: ${size}px; height: ${size}px;
+                left: ${Math.random() * 100}%;
+                animation-duration: ${Math.random() * 15 + 10}s;
+                animation-delay: ${Math.random() * 10}s;
+            `;
+            container.appendChild(p);
+        }
+    }
+
+    /* Toggle mot de passe */
+    document.getElementById('toggle-pwd')?.addEventListener('click', function() {
+        const inp  = document.getElementById('password');
+        const icon = document.getElementById('eye-icon');
+        if (inp.type === 'password') {
+            inp.type = 'text';
+            icon.className = 'fas fa-eye-slash';
+        } else {
+            inp.type = 'password';
+            icon.className = 'fas fa-eye';
+        }
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Scolarité | My EPI App</title>
+    <link rel="stylesheet" href="assets/css/scolarite.css">
+    <link rel="stylesheet" href="assets/css/toast.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+/* ══════════════════════════════════════════════
+   LOGIN ANIMATED BACKGROUND — Espace Scolarité
+══════════════════════════════════════════════ */
+.bg-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 1;
+    overflow: hidden;
+    background-image:
+        linear-gradient(
+            135deg,
+            rgba(26, 70, 48, 0.82),
+            rgba(26, 122, 74, 0.28),
+            rgba(0, 0, 0, 0.45)
+        ),
+        url("assets/img/background.jpeg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: zoomBg 12s ease-in-out infinite alternate;
+}
+
+/* Green reflections */
+.bg-slide::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at top right,  rgba(26, 122, 74, 0.65), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(26, 70, 48, 0.40),  transparent 45%),
+        linear-gradient(to bottom, rgba(20, 55, 35, 0.18), transparent 55%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+}
+
+/* Moving cinematic light */
+.bg-slide::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -120%;
+    width: 70%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.07), transparent);
+    transform: skewX(-20deg);
+    animation: shineMove 7s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes zoomBg {
+    from { transform: scale(1); }
+    to   { transform: scale(1.08); }
+}
+@keyframes shineMove { to { left: 150%; } }
+
+/* Overlay verre dépoli */
+#login-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(8px);
+    z-index: 1;
+}
+
+/* Particules flottantes */
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    animation: float-particle linear infinite;
+    z-index: 1;
+}
+@keyframes float-particle {
+    0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { transform: translateY(-100px) rotate(720deg); opacity: 0; }
+}
+
+/* Conteneur login */
+.login-container {
+    position: relative;
+    z-index: 2;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 45px 40px;
+    border-radius: 20px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1);
+    width: 90%;
+    max-width: 420px;
+    animation: loginAppear 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes loginAppear {
+    from { opacity: 0; transform: translateY(40px) scale(0.94); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Badge scolarité avec couleurs vertes */
+.sco-badge {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, #1a4630, #1a7a4a);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 18px;
+    color: white;
+    font-size: 1.8rem;
+    box-shadow: 0 8px 24px rgba(26,70,48,0.45);
+    animation: badge-pulse-sco 3s ease-in-out infinite;
+}
+@keyframes badge-pulse-sco {
+    0%, 100% { box-shadow: 0 8px 24px rgba(26,122,74,0.45); }
+    50%       { box-shadow: 0 12px 36px rgba(26,122,74,0.65), 0 0 0 6px rgba(26,122,74,0.12); }
+}
+
+/* Bouton submit avec shimmer */
+.btn-submit-sco {
+    position: relative;
+    overflow: hidden;
+    height: 50px;
+    font-size: 1rem;
+    border-radius: 10px;
+    margin-top: 8px;
+}
+.btn-submit-sco::after {
+    content: '';
+    position: absolute;
+    top: -50%; left: -60%;
+    width: 30%; height: 200%;
+    background: rgba(255,255,255,0.15);
+    transform: skewX(-20deg);
+    animation: shimmer 3s ease-in-out infinite;
+}
+@keyframes shimmer {
+    0%   { left: -60%; }
+    100% { left: 120%; }
+}
+
+/* Slide-dots */
+.slide-dots {
+    position: absolute;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 8px;
+    z-index: 3;
+}
+.slide-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.slide-dot.active {
+    background: white;
+    width: 24px;
+    border-radius: 4px;
+}
+    </style>
+</head>
+<body>
+<div id="login-screen" class="screen active">
+    <!-- Slider de fond animé -->
+    <div class="bg-slider" id="bg-slider">
+        <div class="bg-slide active"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+        <div class="bg-slide"></div>
+    </div>
+
+    <!-- Particules dynamiques (générées par JS) -->
+    <div id="particles-container"></div>
+
+    <div class="login-container">
+        <div class="login-header">
+            <div class="sco-badge"><i class="fas fa-university"></i></div>
+            <h2><span class="text-primary">My EPI</span> App</h2>
+            <p>Espace Scolarité</p>
+        </div>
+        <form id="login-form">
+            <div class="input-group">
+                <label for="sco-id"><i class="fas fa-id-badge"></i> Matricule Scolarité</label>
+                <input type="text" id="sco-id" placeholder="Ex: SCO-0045" required>
+            </div>
+            <div class="input-group">
+                <label for="password"><i class="fas fa-lock"></i> Mot de passe</label>
+                <div style="position:relative;">
+                    <input type="password" id="password" placeholder="Votre mot de passe" required style="padding-right:44px;">
+                    <button type="button" id="toggle-pwd"
+                        style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#8892a4;cursor:pointer;font-size:1rem;padding:4px;">
+                        <i class="fas fa-eye" id="eye-icon"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 btn-submit-sco">
+                <i class="fas fa-sign-in-alt"></i> Accéder à l'Espace Scolarité
+            </button>
+            <div class="login-footer">
+                <a href="#"><i class="fas fa-envelope"></i> Problème de connexion ? Contacter l'administration.</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Points de navigation du slider -->
+    <div class="slide-dots" id="slide-dots">
+        <div class="slide-dot active" onclick="goToSlide(0)"></div>
+        <div class="slide-dot" onclick="goToSlide(1)"></div>
+        <div class="slide-dot" onclick="goToSlide(2)"></div>
+        <div class="slide-dot" onclick="goToSlide(3)"></div>
+    </div>
+</div>
+    <div id="app-screen" class="screen">
+
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <img src="assets/img/logo-epi.png" alt="EPI Logo" class="logo-img" onerror="this.style.display='none'">
+                <div class="sco-label">SCOLARITÉ</div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-target="view-dashboard"><i class="fas fa-home"></i> Tableau de bord</li>
+                <li class="nav-item" data-target="view-profile"><i class="fas fa-user-circle"></i> Mon Profil</li>
+                <li class="nav-item" data-target="view-emploi"><i class="fas fa-calendar-alt"></i> Emplois du temps</li>
+                <li class="nav-item" data-target="view-notes"><i class="fas fa-graduation-cap"></i> Notes & Résultats</li>
+                <li class="nav-item" data-target="view-annonces"><i class="fas fa-bullhorn"></i> Annonces officielles</li>
+                <li class="nav-item" data-target="view-etudiants"><i class="fas fa-user-graduate"></i> Informations académiques</li>
+                <li class="nav-item" data-target="view-absences"><i class="fas fa-user-clock"></i> Absences & Pointage</li>
+                <li class="nav-item" data-target="view-documents"><i class="fas fa-file-alt"></i> Documents & Attestations</li>
+            </ul>
+            <div class="logout-container">
+                <button id="logout-btn" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div class="page-title"><h3 id="current-page-title">Tableau de bord</h3></div>
+                <div class="user-info">
+                    <span>Bienvenue, <strong id="user-name-display">Sara KHELIL</strong></span>
+                    <img src="https://ui-avatars.com/api/?name=Sara+K&background=27ae60&color=fff" alt="Avatar" class="avatar">
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <section id="view-dashboard" class="view active">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(39,174,96,0.1); color: #27ae60;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="kpi-info">
+                                <span class="kpi-value">1 248</span>
+                                <span class="kpi-label">Étudiants inscrits</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(52,152,219,0.1); color: #3498db;">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="kpi-info">
+                                <span class="kpi-value">24</span>
+                                <span class="kpi-label">Classes actives</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(201,36,46,0.1); color: #C9242E;">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="kpi-info">
+                                <span class="kpi-value">38</span>
+                                <span class="kpi-label">Notes en attente</span>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon" style="background: rgba(243,156,18,0.1); color: #f39c12;">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="kpi-info">
+                                <span class="kpi-value">12</span>
+                                <span class="kpi-label">Demandes de documents</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="margin-top: 20px;">
+                        <div class="card">
+                            <h3><i class="fas fa-tasks text-primary"></i> Tâches urgentes</h3>
+                            <div class="list-group">
+                                <div class="list-item pending-task">
+                                    <i class="fas fa-graduation-cap text-primary"></i>
+                                    <div>
+                                        <h4>38 notes non saisies — DS S1</h4>
+                                        <p>Date limite : 20 Avril 2026. Matières : Algo, POO, Réseaux.</p>
+                                    </div>
+                                    <button class="btn btn-outline btn-sm" onclick="showView('view-notes')">Gérer</button>
+                                </div>
+                                <div class="list-item pending-task">
+                                    <i class="fas fa-calendar-alt text-warning"></i>
+                                    <div>
+                                        <h4>Emploi du temps S2 à valider</h4>
+                                        <p>Classe TIC 3A — Conflit détecté le Mardi 10h15.</p>
+                                    </div>
+                                    <button class="btn btn-outline btn-sm" onclick="showView('view-emploi')">Voir</button>
+                                </div>
+                                <div class="list-item pending-task">
+                                    <i class="fas fa-file-alt text-info"></i>
+                                    <div>
+                                        <h4>12 attestations à générer</h4>
+                                        <p>Demandes des étudiants en stage.</p>
+                                    </div>
+                                    <button class="btn btn-outline btn-sm" onclick="showView('view-documents')">Traiter</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3><i class="fas fa-bell text-primary"></i> Dernières annonces publiées</h3>
+                            <div class="list-group">
+                                <div class="list-item">
+                                    <span class="badge badge-success">Publiée</span>
+                                    <h4>Calendrier des examens S1</h4>
+                                    <p>Publiée le 12 Avril 2026. 1 248 étudiants notifiés.</p>
+                                </div>
+                                <div class="list-item">
+                                    <span class="badge badge-warning">Brouillon</span>
+                                    <h4>Réinscriptions S2 — Procédures</h4>
+                                    <p>En attente de validation par l'administration.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+<section id="view-profile" class="view">
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>Informations Personnelles</h3>
+                            <form class="form-grid">
+                                <div class="input-group">
+                                    <label>Nom complet</label>
+                                    <input type="text" value="amani hani" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>Filière</label>
+                                    <input type="text" value="Scolarite digital" disabled>
+                                </div>
+                                <div class="input-group">
+                                    <label>Email Académique</label>
+                                    <input type="email" value="amani.hani@epi.ens.tn" disabled>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <div class="card d-flex-center">
+                            <div class="digital-personell-card">
+                                <div class="card-header">
+                                    <h4>EPI <span style="color: #fff; font-weight: normal;">Université</span></h4>
+                                    <span>2025/2026</span>
+                                </div>
+                                <div class="card-body">
+                                    <img src="https://ui-avatars.com/api/?name=Amani&background=fff&color=C9242E" alt="Photo" class="card-photo">
+                                    <div class="card-details">
+                                        <h5>amani hani</h5>
+                                        <p>CIN: <strong>1235556</strong></p>
+                                        <p>Scolarite digital</p>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <i class="fas fa-qrcode"></i> Scan Code
+                                </div>
+                            </div>
+                            <div class="nfc-notice">
+                                <i class="fas fa-mobile-alt"></i> <em>Pointage NFC : Ouvrez l'application mobile My EPI App pour valider votre présence en classe.</em>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="view-emploi" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom: 20px;">
+                            <h3><i class="fas fa-calendar-alt text-primary"></i> Gestion des emplois du temps</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <select class="custom-select">
+                                    <option>TIC 2D.FR</option>
+                                    <option>GL 3A</option>
+                                    <option>GL 3B</option>
+                                    <option>TIC 3A</option>
+                                    <option>RT 2A</option>
+                                </select>
+                                <button class="btn btn-primary"><i class="fas fa-plus"></i> Ajouter un créneau</button>
+                                <button class="btn btn-outline"><i class="fas fa-file-export"></i> Exporter PDF</button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning" style="margin-bottom: 15px;">
+                            <i class="fas fa-exclamation-triangle"></i> <strong>Conflit détecté :</strong> Pr. FILALI est assigné à deux salles simultanément le Mercredi à 10h15. Veuillez corriger.
+                        </div>
+
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Heure</th>
+                                    <th>Lundi</th>
+                                    <th>Mardi</th>
+                                    <th>Mercredi</th>
+                                    <th>Jeudi</th>
+                                    <th>Vendredi</th>
+                                    <th>Samedi</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>08:30 - 10:00</td>
+                                    <td></td>
+                                    <td>
+                                        POO (Java)<br>
+                                        <small>A. FOUGHALI — BS.L301</small>
+                                    </td>
+                                    <td></td>
+                                    <td>Électromagnétisme<br><small>F. ZAOULI — DS.S201</small></td>
+                                    <td>Outils Math.<br><small>M. LOUCHAIECH — DS.S201</small></td>
+                                    <td>POO (Java)<br><small>H. BOUGHAMMOURA — BS.L301</small></td>
+                                    <td>
+                                        <button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>10:15 - 11:45</td>
+                                    <td></td>
+                                    <td>Prog. Web 2<br><small>Y. MILED — DS.LSS10</small></td>
+                                    <td class="conflict-cell">⚠️ Graphes<br><small>S. SAID — DS.RDCSEM</small></td>
+                                    <td>Électromagnétisme<br><small>F. ZAOULI — DS.S201</small></td>
+                                    <td>Outils Math.<br><small>M. LOUCHAIECH — DS.S201</small></td>
+                                    <td>POO (Java)<br><small>H. BOUGHAMMOURA — BS.L301</small></td>
+                                    <td>
+                                        <button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>12:00 - 13:30</td>
+                                    <td>Théorie des Langages<br><small>H. FILALI — DS.S402</small></td>
+                                    <td></td>
+                                    <td>Modélisation Objet<br><small>S. BEN AMOR — DS.S307</small></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section id="view-notes" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom: 20px;">
+                            <h3><i class="fas fa-graduation-cap text-primary"></i> Gestion des notes & résultats</h3>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select class="custom-select" id="notes-class">
+                                    <option value="">-- Choisir une classe --</option>
+                                    <option value="tic2d">TIC 2D.FR</option>
+                                    <option value="gl3a">GL 3A</option>
+                                </select>
+                                <select class="custom-select" id="notes-subject">
+                                    <option>Toutes les matières</option>
+                                    <option>Algorithmique avancée</option>
+                                    <option>Développement Web</option>
+                                    <option>POO (Java)</option>
+                                </select>
+                                <button class="btn btn-outline"><i class="fas fa-file-excel"></i> Importer Excel</button>
+                                <button class="btn btn-primary" onclick="alert('Notes validées et publiées aux étudiants !')"><i class="fas fa-check-circle"></i> Valider & Publier</button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info" style="margin-bottom: 15px;">
+                            <i class="fas fa-info-circle"></i> <strong>Formule de calcul :</strong> Moyenne = (CC × 0.2) + (DS × 0.3) + (Examen × 0.5)
+                        </div>
+
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Étudiant</th>
+                                    <th>Matière</th>
+                                    <th>CC (/20)</th>
+                                    <th>DS (/20)</th>
+                                    <th>Examen (/20)</th>
+                                    <th>Moyenne</th>
+                                    <th>Statut</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Foulen Ben Foulen</td>
+                                    <td>Développement Web</td>
+                                    <td><input type="number" class="grade-input" value="18" max="20" min="0"></td>
+                                    <td><input type="number" class="grade-input" value="17" max="20" min="0"></td>
+                                    <td><input type="number" class="grade-input" value="19" max="20" min="0"></td>
+                                    <td><strong class="text-primary">18.20</strong></td>
+                                    <td><span class="status-badge success">Validée</span></td>
+                                    <td><button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>Sarah Mansour</td>
+                                    <td>Développement Web</td>
+                                    <td><input type="number" class="grade-input" value="16" max="20" min="0"></td>
+                                    <td><input type="number" class="grade-input" value="15" max="20" min="0"></td>
+                                    <td><input type="number" class="grade-input" placeholder="—" max="20" min="0"></td>
+                                    <td><strong style="color: #f39c12;">—</strong></td>
+                                    <td><span class="status-badge warning">En attente</span></td>
+                                    <td><button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>Ahmed Trabelsi</td>
+                                    <td>Algorithmique</td>
+                                    <td><input type="number" class="grade-input" value="12" max="20" min="0"></td>
+                                    <td><input type="number" class="grade-input" value="10" max="20" min="0"></td>
+                                    <td><input type="number" class="grade-input" value="8" max="20" min="0"></td>
+                                    <td><strong style="color: #C9242E;">9.40</strong></td>
+                                    <td><span class="status-badge danger">Insuffisant</span></td>
+                                    <td><button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 15px; text-align: right;">
+                            <button class="btn btn-outline" style="margin-right: 10px;" onclick="alert('Données exportées en Excel.')"><i class="fas fa-file-excel"></i> Exporter</button>
+                            <button class="btn btn-primary" onclick="alert('Brouillon enregistré.')"><i class="fas fa-save"></i> Enregistrer brouillon</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="view-annonces" class="view">
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3><i class="fas fa-bullhorn text-primary"></i> Publier une annonce</h3>
+                            <div class="input-group">
+                                <label>Destinataires</label>
+                                <select class="custom-select">
+                                    <option>Tous les étudiants</option>
+                                    <option>Tous les enseignants</option>
+                                    <option>Classe spécifique</option>
+                                    <option>Tous les utilisateurs</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Catégorie</label>
+                                <select class="custom-select">
+                                    <option>📅 Calendrier académique</option>
+                                    <option>📋 Examens & résultats</option>
+                                    <option>📝 Réinscriptions</option>
+                                    <option>🔔 Alerte administrative</option>
+                                    <option>ℹ️ Information générale</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Titre de l'annonce</label>
+                                <input type="text" placeholder="Ex: Calendrier des examens du S2">
+                            </div>
+                            <div class="input-group">
+                                <label>Contenu</label>
+                                <textarea rows="5" placeholder="Rédigez votre annonce officielle ici..."></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label>Pièce jointe (PDF)</label>
+                                <input type="file" accept=".pdf" style="padding: 8px;">
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" class="btn btn-outline" onclick="alert('Brouillon sauvegardé.')">
+                                    <i class="fas fa-save"></i> Sauvegarder
+                                </button>
+                                <button type="button" class="btn btn-primary" style="flex: 1;" onclick="alert('Annonce publiée et diffusée !')">
+                                    <i class="fas fa-paper-plane"></i> Publier maintenant
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3><i class="fas fa-list text-primary"></i> Annonces publiées</h3>
+                            <div class="list-group">
+                                <div class="list-item">
+                                    <div class="notif-header">
+                                        <span class="badge badge-success">Publiée</span>
+                                        <small>12 Avril 2026</small>
+                                    </div>
+                                    <h4>Calendrier des examens — Semestre 1</h4>
+                                    <p>Destinataires : Tous les étudiants. Vues : 1 041 / 1 248.</p>
+                                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                                        <button class="btn btn-outline btn-sm"><i class="fas fa-eye"></i> Voir</button>
+                                        <button class="btn btn-outline btn-sm" style="color: #C9242E; border-color: #C9242E;"><i class="fas fa-trash"></i> Retirer</button>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="notif-header">
+                                        <span class="badge badge-warning">Brouillon</span>
+                                        <small>15 Avril 2026</small>
+                                    </div>
+                                    <h4>Procédures de réinscription S2</h4>
+                                    <p>En attente de validation. Non encore diffusée.</p>
+                                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                                        <button class="btn btn-outline btn-sm"><i class="fas fa-edit"></i> Modifier</button>
+                                        <button class="btn btn-primary btn-sm" onclick="alert('Annonce publiée !')"><i class="fas fa-paper-plane"></i> Publier</button>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="notif-header">
+                                        <span class="badge badge-success">Publiée</span>
+                                        <small>05 Avril 2026</small>
+                                    </div>
+                                    <h4>Fermeture exceptionnelle — 8 Avril</h4>
+                                    <p>Destinataires : Tous. Vues : 1 198 / 1 352.</p>
+                                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                                        <button class="btn btn-outline btn-sm"><i class="fas fa-eye"></i> Voir</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="view-etudiants" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom: 20px;">
+                            <h3><i class="fas fa-user-graduate text-primary"></i> Informations académiques des étudiants</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" class="search-input" placeholder="🔍 Rechercher un étudiant...">
+                                <select class="custom-select">
+                                    <option>Toutes les filières</option>
+                                    <option>Génie Logiciel</option>
+                                    <option>TIC</option>
+                                    <option>Réseaux & Télécom</option>
+                                </select>
+                                <button class="btn btn-outline"><i class="fas fa-file-import"></i> Importer</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Étudiant</th>
+                                    <th>CIN</th>
+                                    <th>Filière / Classe</th>
+                                    <th>Année</th>
+                                    <th>Moy. Générale</th>
+                                    <th>Absences</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <img src="https://ui-avatars.com/api/?name=Foulen+B&rounded=true&size=32&background=C9242E&color=fff" alt="">
+                                            <span>Foulen Ben Foulen</span>
+                                        </div>
+                                    </td>
+                                    <td>12345678</td>
+                                    <td>Génie Logiciel / TIC 2D</td>
+                                    <td>2ème Année</td>
+                                    <td><strong class="text-primary">16.77</strong></td>
+                                    <td>9 h</td>
+                                    <td><span class="status-badge success">Autorisé</span></td>
+                                    <td class="action-buttons">
+                                        <button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action view" title="Voir fiche"><i class="fas fa-eye"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <img src="https://ui-avatars.com/api/?name=Sarah+M&rounded=true&size=32&background=3498db&color=fff" alt="">
+                                            <span>Sarah Mansour</span>
+                                        </div>
+                                    </td>
+                                    <td>87654321</td>
+                                    <td>Génie Logiciel / TIC 2D</td>
+                                    <td>2ème Année</td>
+                                    <td><strong class="text-primary">14.30</strong></td>
+                                    <td>4.5 h</td>
+                                    <td><span class="status-badge success">Autorisé</span></td>
+                                    <td class="action-buttons">
+                                        <button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action view" title="Voir fiche"><i class="fas fa-eye"></i></button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <img src="https://ui-avatars.com/api/?name=Ahmed+T&rounded=true&size=32&background=f39c12&color=fff" alt="">
+                                            <span>Ahmed Trabelsi</span>
+                                        </div>
+                                    </td>
+                                    <td>11223344</td>
+                                    <td>Génie Logiciel / GL 3A</td>
+                                    <td>3ème Année</td>
+                                    <td><strong style="color: #C9242E;">7.80</strong></td>
+                                    <td>28 h</td>
+                                    <td><span class="status-badge danger">Non Autorisé</span></td>
+                                    <td class="action-buttons">
+                                        <button class="btn-action edit" title="Modifier"><i class="fas fa-edit"></i></button>
+                                        <button class="btn-action view" title="Voir fiche"><i class="fas fa-eye"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <section id="view-absences" class="view">
+                    <div class="card">
+                        <div class="flex-between" style="margin-bottom: 20px;">
+                            <h3><i class="fas fa-user-clock text-primary"></i> Récapitulatif des absences</h3>
+                            <div style="display: flex; gap: 10px;">
+                                <select class="custom-select">
+                                    <option>TIC 2D.FR</option>
+                                    <option>GL 3A</option>
+                                    <option>GL 3B</option>
+                                </select>
+                                <button class="btn btn-outline"><i class="fas fa-file-export"></i> Exporter</button>
+                            </div>
+                        </div>
+
+                        <div class="absence-alert-info">
+                            <i class="fas fa-exclamation-triangle"></i> 
+                            <strong>Attention :</strong> 3 étudiants ont dépassé le seuil de 25% d'absences et sont en statut "Non Autorisé".
+                        </div>
+
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Étudiant</th>
+                                    <th>Matière</th>
+                                    <th>Heures abs.</th>
+                                    <th>Taux</th>
+                                    <th>Progression</th>
+                                    <th>Statut</th>
+                                    <th>Justification</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Foulen Ben Foulen</td>
+                                    <td>Programmation Web 2</td>
+                                    <td>3h</td>
+                                    <td>7.14%</td>
+                                    <td>
+                                        <div class="progress-bar" style="width: 120px;">
+                                            <div class="progress-fill warning" style="width: 7.14%;"></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge success">Autorisé</span></td>
+                                    <td><button class="btn-action view" title="Justificatif"><i class="fas fa-file-check"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>Ahmed Trabelsi</td>
+                                    <td>Algorithmique avancée</td>
+                                    <td>28h</td>
+                                    <td>66.7%</td>
+                                    <td>
+                                        <div class="progress-bar" style="width: 120px;">
+                                            <div class="progress-fill danger" style="width: 100%;"></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge danger">Non Autorisé</span></td>
+                                    <td><button class="btn-action edit" title="Saisir justificatif"><i class="fas fa-plus"></i></button></td>
+                                </tr>
+                                <tr>
+                                    <td>Sarah Mansour</td>
+                                    <td>Projet d'intégration</td>
+                                    <td>1.5h</td>
+                                    <td>3.57%</td>
+                                    <td>
+                                        <div class="progress-bar" style="width: 120px;">
+                                            <div class="progress-fill" style="width: 3.57%;"></div>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge success">Autorisé</span></td>
+                                    <td><button class="btn-action view" title="Justificatif"><i class="fas fa-file-check"></i></button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                <section id="view-documents" class="view">
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3><i class="fas fa-file-alt text-primary"></i> Demandes en attente</h3>
+                            <div class="list-group">
+                                <div class="list-item">
+                                    <div class="notif-header">
+                                        <span class="badge badge-warning">En attente</span>
+                                        <small>Aujourd'hui</small>
+                                    </div>
+                                    <h4>Attestation de présence</h4>
+                                    <p>Demandée par : Foulen Ben Foulen — Pour : Stage en entreprise</p>
+                                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm" onclick="alert('Attestation générée et envoyée à l\'étudiant !')">
+                                            <i class="fas fa-check"></i> Générer
+                                        </button>
+                                        <button class="btn btn-outline btn-sm">Refuser</button>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="notif-header">
+                                        <span class="badge badge-warning">En attente</span>
+                                        <small>Hier</small>
+                                    </div>
+                                    <h4>Relevé de notes officiel</h4>
+                                    <p>Demandée par : Sarah Mansour — Pour : Candidature Master</p>
+                                    <div style="margin-top: 8px; display: flex; gap: 8px;">
+                                        <button class="btn btn-primary btn-sm" onclick="alert('Relevé généré et envoyé !')">
+                                            <i class="fas fa-check"></i> Générer
+                                        </button>
+                                        <button class="btn btn-outline btn-sm">Refuser</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3><i class="fas fa-plus-circle text-primary"></i> Générer un document</h3>
+                            <div class="input-group">
+                                <label>Type de document</label>
+                                <select class="custom-select">
+                                    <option>Attestation de présence</option>
+                                    <option>Relevé de notes officiel</option>
+                                    <option>Attestation de scolarité</option>
+                                    <option>Convention de stage</option>
+                                    <option>Certificat de réussite</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Étudiant concerné</label>
+                                <input type="text" placeholder="Nom ou CIN de l'étudiant">
+                            </div>
+                            <div class="input-group">
+                                <label>Objet / Motif</label>
+                                <input type="text" placeholder="Ex: Stage, Candidature, Visa...">
+                            </div>
+                            <div class="input-group">
+                                <label>Année académique</label>
+                                <select class="custom-select">
+                                    <option>2025/2026</option>
+                                    <option>2024/2025</option>
+                                    <option>2023/2024</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary w-100" onclick="alert('Document généré avec succès en PDF !')">
+                                <i class="fas fa-file-pdf"></i> Générer le document PDF
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+<script src="assets/js/scolarite.js"></script>
+
+<script>
+/* ══════════════════════════════════════════
+   ANIMATED LOGIN BACKGROUND — Scolarité
+══════════════════════════════════════════ */
+(function() {
+    const slides = document.querySelectorAll('.bg-slide');
+    const dots   = document.querySelectorAll('.slide-dot');
+    let current  = 0;
+    let timer;
+
+    window.goToSlide = function(idx) {
+        slides[current].classList.remove('active');
+        dots[current].classList.remove('active');
+        current = idx;
+        slides[current].classList.add('active');
+        dots[current].classList.add('active');
+        clearInterval(timer);
+        startTimer();
+    };
+
+    function nextSlide() { goToSlide((current + 1) % slides.length); }
+    function startTimer() { timer = setInterval(nextSlide, 5000); }
+    startTimer();
+
+    /* Particules flottantes */
+    const container = document.getElementById('particles-container');
+    if (container) {
+        for (let i = 0; i < 15; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            const size = Math.random() * 40 + 10;
+            p.style.cssText =
+                'width:' + size + 'px;height:' + size + 'px;' +
+                'left:' + (Math.random() * 100) + '%;' +
+                'animation-duration:' + (Math.random() * 15 + 10) + 's;' +
+                'animation-delay:' + (Math.random() * 10) + 's;';
+            container.appendChild(p);
+        }
+    }
+
+    /* Toggle mot de passe */
+    document.getElementById('toggle-pwd')?.addEventListener('click', function() {
+        const inp  = document.getElementById('password');
+        const icon = document.getElementById('eye-icon');
+        if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+        else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
+    });
+})();
+</script>
+</body>
+</html>
